@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
-import Navigation from "@/components/Navigation";
-import Products from "@/components/Products";
-import ProductPage from "@/components/Products/[ProductId]";
 import { Navbar } from "@/components/Navbar";
 import { cn } from "@/lib/utils";
 

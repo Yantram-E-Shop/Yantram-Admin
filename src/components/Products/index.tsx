@@ -11,7 +11,7 @@ const Products = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get('/api/products'); // Replace with your backend API endpoint
+                const response = await axios.get('/api/v1/products'); // Replace with your backend API endpoint
                 setProducts(response.data);
             } catch (error) {
                 console.error('Error fetching products:', error);
