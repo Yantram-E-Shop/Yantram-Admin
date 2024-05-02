@@ -26,6 +26,7 @@ import {
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { ThemeToggle } from "../Theme-Toggle/theme-toggle";
 
 export function Navbar() {
     return (
@@ -92,6 +93,7 @@ export function Navbar() {
                     </NavigationMenuItem>
                 </div>
                 </NavigationMenuList>
+                <ThemeToggle />
                 <NavigationMenuList>
                 <div className="pr-12">
                     <NavigationMenuItem>
