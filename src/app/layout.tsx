@@ -21,6 +21,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
+        
         <html lang="en" className="dark">
             <body
                 className={cn(
@@ -30,10 +31,12 @@ export default function RootLayout({
             >
                  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                 <Navbar />
+                
                 {children}
 
                 </ThemeProvider>
             </body>
         </html>
+        
     );
 }

@@ -27,9 +27,12 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { ThemeToggle } from "../Theme-Toggle/theme-toggle";
+import DashboardPage from "../DashboardPage";
+import { Overview } from "../Overview";
 
 export function Navbar() {
     return (
+        <>
         <NavigationMenu>
             <NavigationMenuList>
                 <div>
@@ -116,6 +119,9 @@ export function Navbar() {
                 </div>
             </NavigationMenuList>
         </NavigationMenu>
+        <DashboardPage  />
+       
+        </>
     );
 }
 
