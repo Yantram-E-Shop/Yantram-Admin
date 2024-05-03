@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { cn } from "@/lib/utils";
 import { AuthProvider } from "@/context/AuthProvider";
+import { useAuth } from "@/context/AuthContext";
 
 const fontSans = FontSans({
     subsets: ["latin"],

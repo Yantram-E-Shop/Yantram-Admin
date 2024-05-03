@@ -3,17 +3,19 @@ import { useAuth } from "@/context/AuthContext";
 
 const useRefreshToken = () => {
     const { setAuth } = useAuth();
+    const refreshToken = localStorage.getItem('refreshToken');
 
     const refresh = async () => {
-        const response = await axios.get('/user/refresh-token', {
-            withCredentials: true
+        const response = await axios.post('/user/refresh-token', {
+           refreshToken: refreshToken,
         });
+        localStorage.setItem('refreshToken', response.data.data.refreshToken);
         setAuth(prev => {
             console.log(JSON.stringify(prev));
-            console.log(response.data.accessToken);
-            return { ...prev, accessToken: response.data.accessToken }
+            console.log(response.data.data.accessToken);
+            return { ...prev, accessToken: response.data.data.accessToken }
         });
-        return response.data.accessToken;
+        return response.data.data.accessToken;
     }
     return refresh;
 };
