@@ -9,7 +9,7 @@ const useRefreshToken = () => {
         const response = await axios.post('/user/refresh-token', {
            refreshToken: refreshToken,
         });
-        localStorage.setItem('refreshToken', response.data.data.refreshToken);
+        localStorage.setItem('refreshToken', response?.data?.data.refreshToken);
         setAuth(prev => {
             console.log(JSON.stringify(prev));
             console.log(response.data.data.accessToken);

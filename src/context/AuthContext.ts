@@ -9,7 +9,7 @@ interface User {
     isVerified: boolean;
     createdAt?: Date;
     updatedAt?: Date;
-    __v?: number; 
+    __v?: number;
 }
 
 interface AuthState {

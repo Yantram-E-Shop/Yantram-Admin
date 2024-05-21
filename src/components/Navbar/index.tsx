@@ -26,8 +26,15 @@ import {
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "@/context/AuthContext";
 
 export function Navbar() {
+    const { auth } = useAuth();
+
+    if (!auth.accessToken) {
+        return <></>
+    }
+    
     return (
         <NavigationMenu>
             <NavigationMenuList>
