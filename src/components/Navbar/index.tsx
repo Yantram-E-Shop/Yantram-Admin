@@ -119,7 +119,6 @@ export function Navbar() {
                 </div>
             </NavigationMenuList>
         </NavigationMenu>
-        <DashboardPage  />
        
         </>
     );
