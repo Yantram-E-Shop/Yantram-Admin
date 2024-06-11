@@ -3,8 +3,8 @@ import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { cn } from "@/lib/utils";
-import { AuthProvider } from "@/context/AuthProvider";
-import { useAuth } from "@/context/AuthContext";
+import { AuthContextProvider } from "@/context/AuthContext";
+import { Toaster } from "react-hot-toast";
 
 const fontSans = FontSans({
     subsets: ["latin"],
@@ -23,17 +23,19 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className="dark">
-            <AuthProvider>
-                <body
-                    className={cn(
-                        "min-h-screen bg-background font-sans antialiased",
-                        fontSans.variable
-                    )}
-                >
+            <body
+                className={cn(
+                    "min-h-screen bg-background font-sans antialiased",
+                    fontSans.variable
+                )}
+                suppressHydrationWarning={true}
+            >
+                <AuthContextProvider>
                     <Navbar />
+                    <Toaster position="top-center" />
                     {children}
-                </body>
-            </AuthProvider>
+                </AuthContextProvider>
+            </body>
         </html>
     );
 }

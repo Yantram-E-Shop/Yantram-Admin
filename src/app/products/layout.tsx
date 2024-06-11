@@ -6,17 +6,6 @@ export default function ProductsLayout({
     children: React.ReactNode;
 }>) {
     return (
-        // <html lang="en" className="dark">
-        //     <body
-        //         className={cn(
-        //             "min-h-screen bg-background font-sans antialiased",
-        //             fontSans.variable
-        //         )}
-        //     >
-        //         <Navbar />
-        //         {children}
-        //     </body>
-        // </html>
         <>
             {children}
         </>

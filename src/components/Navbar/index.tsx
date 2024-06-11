@@ -4,7 +4,6 @@ import * as React from "react";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-// import { Icons } from "@/components/icons"
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -26,15 +25,15 @@ import {
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthContext } from "@/hooks/useAuthContext";
 
 export function Navbar() {
-    const { auth } = useAuth();
+    const { accessToken } = useAuthContext();
 
-    if (!auth.accessToken) {
-        return <></>
+    if (!accessToken) {
+        return <></>;
     }
-    
+
     return (
         <NavigationMenu>
             <NavigationMenuList>
@@ -98,8 +97,8 @@ export function Navbar() {
                         </Link>
                     </NavigationMenuItem>
                 </div>
-                </NavigationMenuList>
-                <NavigationMenuList>
+            </NavigationMenuList>
+            <NavigationMenuList>
                 <div className="pr-12">
                     <NavigationMenuItem>
                         <DropdownMenu>
@@ -114,7 +113,9 @@ export function Navbar() {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem>Team</DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem>Subscription</DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    Subscription
+                                </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </NavigationMenuItem>

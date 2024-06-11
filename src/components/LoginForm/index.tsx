@@ -13,9 +13,8 @@ import {
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AxiosResponse } from "axios";
-import  axios from "@/api/axios";
-import { useAuth } from "@/context/AuthContext";
+import { useLogin } from "@/hooks/useLogin";
+import toast from "react-hot-toast";
 
 const formSchema = z.object({
     email: z.string().email(),
@@ -23,8 +22,6 @@ const formSchema = z.object({
 });
 
 const LoginForm = () => {
-    const { auth, setAuth } = useAuth();
-
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -33,26 +30,10 @@ const LoginForm = () => {
         },
     });
 
+    const { login, isLoading, error } = useLogin();
+
     const handleSubmit = async () => {
-        let response;
-        try {
-            response = await axios.post("/user/login/admin", {
-                email: form.getValues().email,
-                password: form.getValues().password,
-            });
-
-            const currentUser = {
-                user: response.data.data.user,
-                accessToken: response.data.data.accessToken,
-            }
-
-            localStorage.setItem('accessToken', response.data.data.accessToken);
-            localStorage.setItem('refreshToken', response.data.data.refreshToken);
-            
-            setAuth(currentUser);
-        } catch (error) {
-            console.error(error);
-        }
+        await login(form.getValues().email, form.getValues().password);
     };
 
     return (
