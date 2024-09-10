@@ -2,60 +2,46 @@
 
 import { Plus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { ApiList } from "@/components/ui/api-list";
-
 import { ProductColumn, columns } from "./columns";
 
 interface ProductsClientProps {
   data: ProductColumn[];
+  page: number;
+  setPage: (page: number) => void;
+  totalPages: number;
+  totalProducts: number;
 }
 
-const sampleData: ProductColumn[] = [
-  {
-    id: "1",
-    name: "Product 1",
-    price: 10.00,
-    category: "Category A",
-    size: "Medium",
-    color: "Red",
-    createdAt: "2024-05-01",
-    isFeatured: true,
-    isArchived: false,
-  },
-  {
-    id: "2",
-    name: "Product 2",
-    price: 15.00,
-    category: "Category B",
-    size: "Large",
-    color: "Blue",
-    createdAt: "2024-05-02",
-    isFeatured: false,
-    isArchived: true,
-  },
-  // Add more sample data as needed
-];
-
-
-export const ProductsClient: React.FC<ProductsClientProps> = ({ data }) => {
+export const ProductsClient: React.FC<ProductsClientProps> = ({ data, page, setPage, totalPages, totalProducts }) => {
   const params = useParams();
   const router = useRouter();
 
   return (
     <>
       <div className="flex items-center justify-between">
-        <Heading title={`Products (${sampleData.length})`} description="Manage products for your store" />
+        <Heading title={`Products (${totalProducts})`} description="Manage products for your store" />
         <Button onClick={() => router.push(`/products/new`)}>
           <Plus className="w-4 h-4 mr-2" /> Add New
         </Button>
       </div>
       <Separator />
-      <DataTable searchKey="name" columns={columns}  data={sampleData} />
+      <DataTable searchKey="name" columns={columns} data={data} />
+      <div className="flex items-center justify-between py-4 space-x-2">
+        <Button variant="outline" size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
+          Previous
+        </Button>
+        <span>
+          Page {page} of {totalPages}
+        </span>
+        <Button variant="outline" size="sm" onClick={() => setPage(page + 1)} disabled={page === totalPages}>
+          Next
+        </Button>
+      </div>
       <Heading title="API" description="API Calls for Products" />
       <Separator />
       <ApiList entityName="products" entityIdName="productId" />

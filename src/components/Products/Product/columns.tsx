@@ -1,53 +1,51 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-
 import { CellAction } from "./cell-action";
 
 export type ProductColumn = {
-  id: string;
-  name: string;
-  price: string | number;
+  _id: string;
+  title: string;
+  originalPrice: string | number;
   category: string;
-  size: string;
-  color: string;
+  soldQuantity: string | number;
   createdAt: string;
-  isFeatured: boolean;
-  isArchived: boolean;
+  availableQuantity: string | number;
+  isAvailable: boolean;
+  attributes: { attribute: string; value: string; _id: string }[];
 };
 
 export const columns: ColumnDef<ProductColumn>[] = [
   {
-    accessorKey: "name",
+    accessorKey: "title",
     header: "Name",
   },
   {
-    accessorKey: "isArchived",
-    header: "Archived",
-  },
-  {
-    accessorKey: "isFeatured",
-    header: "Featured",
-  },
-  {
-    accessorKey: "price",
+    accessorKey: "originalPrice",
     header: "Price",
+  },
+  {
+    accessorKey: "isAvailable",
+    header: "Available",
+  },
+  {
+    accessorKey: "availableQuantity",
+    header: "Available Quantity",
+  },
+  {
+    accessorKey: "soldQuantity",
+    header: "Sold Quantity",
   },
   {
     accessorKey: "category",
     header: "Category",
   },
   {
-    accessorKey: "size",
-    header: "Size",
-  },
-  {
-    accessorKey: "color",
-    header: "Color",
+    accessorKey: "Attributes",
+    header: "Attributes",
     cell: ({ row }) => (
       <div className="flex items-center gap-x-2">
-        {row.original.color}
-        <div className="w-6 h-6 border rounded-full" style={{ backgroundColor: row.original.color }} />
+        {row.getValue("Attributes")}
       </div>
     ),
   },
