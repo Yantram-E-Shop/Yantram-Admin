@@ -7,30 +7,30 @@ import { DataTable } from "@/components/ui/data-table";
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { ApiList } from "@/components/ui/api-list";
-import { ProductColumn, columns } from "./columns";
+import { columns, OrderColumn } from "./columns";
 
-interface ProductsClientProps {
-  data: ProductColumn[];
+interface OrdersClientProps {
+  data: OrderColumn[];
   page: number;
   setPage: (page: number) => void;
   totalPages: number;
-  totalProducts: number;
+  totalOrders: number;
 }
 
-export const ProductsClient: React.FC<ProductsClientProps> = ({ data, page, setPage, totalPages, totalProducts }) => {
+export const OrdersClient: React.FC<OrdersClientProps> = ({ data, page, setPage, totalPages, totalOrders }) => {
   const params = useParams();
   const router = useRouter();
 
   return (
     <>
       <div className="flex items-center justify-between">
-        <Heading title={`Products (${totalProducts})`} description="Manage products for your store" />
+        <Heading title={`Orders (${totalOrders})`} description="Manage products for your store" />
         <Button onClick={() => router.push(`/products/new`)}>
           <Plus className="w-4 h-4 mr-2" /> Add New
         </Button>
       </div>
       <Separator />
-      <DataTable searchKey="title" columns={columns} data={data} />
+      <DataTable searchKey="id" columns={columns} data={data} />
       <div className="flex items-center justify-between py-4 space-x-2">
         <Button variant="outline" size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
           Previous
@@ -42,9 +42,9 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({ data, page, setP
           Next
         </Button>
       </div>
-      <Heading title="API" description="API Calls for Products" />
+      <Heading title="API" description="API Calls for Orders" />
       <Separator />
-      <ApiList entityName="products" entityIdName="productId" />
+      <ApiList entityName="orders" entityIdName="orderId" />
     </>
   );
 };

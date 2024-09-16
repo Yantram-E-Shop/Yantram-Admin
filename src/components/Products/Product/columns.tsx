@@ -17,6 +17,10 @@ export type ProductColumn = {
 
 export const columns: ColumnDef<ProductColumn>[] = [
   {
+    accessorKey: "id",
+    header: "ID",
+  },
+  {
     accessorKey: "title",
     header: "Name",
   },
@@ -41,11 +45,11 @@ export const columns: ColumnDef<ProductColumn>[] = [
     header: "Category",
   },
   {
-    accessorKey: "Attributes",
+    accessorKey: "attributes",
     header: "Attributes",
     cell: ({ row }) => (
       <div className="flex items-center gap-x-2">
-        {row.getValue("Attributes")}
+        {row.getValue("attributes")}
       </div>
     ),
   },

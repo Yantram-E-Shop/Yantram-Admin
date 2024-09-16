@@ -2,54 +2,55 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { format } from "date-fns";
-import { ProductsClient } from "./Product/client";
-import { ProductColumn } from "./Product/columns";
 import { AuthContext } from "@/context/AuthContext";
 import Loader from "../ui/loader";
+import { OrderColumn } from "./Order/columns";
+import { OrdersClient } from "./Order/client";
 
-const Products = () => {
-  const [products, setProducts] = useState<ProductColumn[]>([]);
+const Orders = () => {
+  const [orders, setOrders] = useState<OrderColumn[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
   const [loading, setLoading] = useState(false);
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fecthOrders = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://13.201.54.226:5000/api/v1/products?page=${page}`, {
+        const response = await axios.get(`http://13.201.54.226:5000/api/v1/orders?page=${page}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         });
         const data = response.data;
-        setProducts(data.data.data);
+        setOrders(data.data?.data);
         setTotalPages(data.data.pagination.totalPages || 1);
-        setTotalProducts(data.data.pagination.totalProducts || 0);
+        setTotalOrders(data.data.pagination.totalOrders || 0);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Error fetching orders:", error);
       } finally {
         setTimeout(() => {setLoading(false)}, 200);
       }
     };
 
-    fetchProducts();
+    fecthOrders();
   }, [accessToken, page]);
 
-  const formattedProducts = products.map((item) => ({
-    id: item._id,
-    title: item.title,
-    originalPrice: item.originalPrice,
-    category: item.category,
-    attributes: item.attributes.map(attr => attr.value).join(', ') || "N/A",
-    soldQuantity: item.soldQuantity,
+
+  const formattedOrders = orders.map((item) => ({
+    id: item.orderID,
+    paymentMethod: item.paymentMethod,
+    totalPrice: item.totalPrice,
+    address: item.address?.fullAddress + " " + item.address?.landmark + " " + item.address?.district + " " + item.address?.state + " " + item.address?.phoneNumber + " " + item.address?.alternatePhoneNumber|| "N/A",
+    // attributes: item.attributes.map(attr => attr.value).join(', ') || "N/A",
+    status: item.status,
     createdAt: format(new Date(item.createdAt), "MMMM do, yyyy"),
-    isAvailable: item.isAvailable,
-    availableQuantity: item.availableQuantity,
   }));
+
+  console.log(formattedOrders);
 
   if(loading) {
     return(
@@ -59,16 +60,16 @@ const Products = () => {
   return (
     <div className="flex-col">
       <div className="flex-1 p-8 pt-6 space-y-4">
-        <ProductsClient
-          data={formattedProducts}
+        <OrdersClient
+          data={formattedOrders}
           page={page}
           setPage={setPage}
           totalPages={totalPages}
-          totalProducts={totalProducts}
+          totalOrders={totalOrders}
         />
       </div>
     </div>
   );
 };
 
-export default Products;
+export default Orders;
