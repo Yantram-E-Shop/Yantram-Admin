@@ -8,8 +8,11 @@ import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { ApiList } from "@/components/ui/api-list";
 import { ProductColumn, columns } from "./columns";
+import React from "react";
 
 interface ProductsClientProps {
+  isModalOpen: boolean;
+  setIsModalOpen: (isOpen: boolean) => void;
   data: ProductColumn[];
   page: number;
   setPage: (page: number) => void;
@@ -17,7 +20,7 @@ interface ProductsClientProps {
   totalProducts: number;
 }
 
-export const ProductsClient: React.FC<ProductsClientProps> = ({ data, page, setPage, totalPages, totalProducts }) => {
+export const ProductsClient: React.FC<ProductsClientProps> = ({ isModalOpen, setIsModalOpen, data, page, setPage, totalPages, totalProducts }) => {
   const params = useParams();
   const router = useRouter();
 
@@ -25,10 +28,10 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({ data, page, setP
     <>
       <div className="flex items-center justify-between">
         <Heading title={`Products (${totalProducts})`} description="Manage products for your store" />
-        <Button onClick={() => router.push(`/products/new`)}>
+        <Button onClick={() => { setIsModalOpen(true) }}>
           <Plus className="w-4 h-4 mr-2" /> Add New
         </Button>
-      </div>
+      </div >
       <Separator />
       <DataTable searchKey="title" columns={columns} data={data} />
       <div className="flex items-center justify-between py-4 space-x-2">

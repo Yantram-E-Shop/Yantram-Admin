@@ -5,7 +5,9 @@ import { format } from "date-fns";
 import { ProductsClient } from "./Product/client";
 import { ProductColumn } from "./Product/columns";
 import { AuthContext } from "@/context/AuthContext";
+import AddProductModal from "../ui/AddProductModal";
 import Loader from "../ui/loader";
+import { BASE_URL } from "@/api/axios";
 
 const Products = () => {
   const [products, setProducts] = useState<ProductColumn[]>([]);
@@ -15,12 +17,20 @@ const Products = () => {
   const [loading, setLoading] = useState(false);
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  const onProductAdded = () => {
+    closeModal();
+    setPage(1);
+  }
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://13.201.54.226:5000/api/v1/products?page=${page}`, {
+        const response = await axios.get(`${BASE_URL}/products?page=${page}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -32,7 +42,7 @@ const Products = () => {
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
-        setTimeout(() => {setLoading(false)}, 200);
+        setTimeout(() => { setLoading(false) }, 200);
       }
     };
 
@@ -51,21 +61,24 @@ const Products = () => {
     availableQuantity: item.availableQuantity,
   }));
 
-  if(loading) {
-    return(
-        <Loader />
+  if (loading) {
+    return (
+      <Loader />
     )
   }
   return (
     <div className="flex-col">
       <div className="flex-1 p-8 pt-6 space-y-4">
         <ProductsClient
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
           data={formattedProducts}
           page={page}
           setPage={setPage}
           totalPages={totalPages}
           totalProducts={totalProducts}
         />
+        <AddProductModal isOpen={isModalOpen} onClose={closeModal} onProductAdded={onProductAdded} />
       </div>
     </div>
   );
