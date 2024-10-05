@@ -76,7 +76,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
           },
         }
       );
-      const createdProductId = response.data.productId;
+      const createdProductId = response.data.data._id;
       setProductId(createdProductId); // Store product ID for image upload
       setStep(2); // Proceed to the next step for image upload
     } catch (error) {
@@ -91,27 +91,24 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
     setImage(e.target.files[0]);
   };
 
-  const handleSubmitImage = async () => {
+  const handleSubmitImage = async (e) => {
     // if (!image || !productId) {
     //   setError("Please select an image and ensure the product is created.");
     //   return;
     // }
     setIsSubmitting(true);
     try {
+      console.log("image", e.files);
       const formData = new FormData();
       formData.append("images", image); // The key should be "images" as per your API
 
-      // // Upload the image for the created product
-      // await axios.post(
-      //   `${BASE_URL}/products/${productId}/images`,
-      //   formData,
-      //   {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //       Authorization: `Bearer ${accessToken}`,
-      //     },
-      //   }
-      // );
+      // Upload the image for the created product
+      await axios.put(`${BASE_URL}/products/${productId}/images`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       // Call the callback to notify parent of successful addition
       // onProductAdded();
