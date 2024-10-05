@@ -18,7 +18,7 @@ const useAuthRedirect = () => {
 
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://13.201.54.226:5000/api/v1/user/me`, {
+        const response = await axios.get(`/api/v1/user/me`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },

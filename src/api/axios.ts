@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useRouter } from "next/router";
 
-export const BASE_URL = "http://13.126.92.193:5000/api/v1";
+export const BASE_URL = "/api/v1";
 
 const api = axios.create({
     baseURL: BASE_URL,

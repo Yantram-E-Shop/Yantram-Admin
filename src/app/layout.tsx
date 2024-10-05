@@ -5,6 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { cn } from "@/lib/utils";
 import { AuthContextProvider } from "@/context/AuthContext";
 import { Toaster } from "react-hot-toast";
+import Head from "next/head"; // Import the Head component from next
 
 const fontSans = FontSans({
     subsets: ["latin"],
@@ -23,7 +24,13 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className="dark">
-            <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"></meta>
+            {/* Place the meta tag inside the Head component */}
+            <Head>
+                <meta
+                    http-equiv="Content-Security-Policy"
+                    content="upgrade-insecure-requests"
+                />
+            </Head>
             <body
                 className={cn(
                     "min-h-screen bg-background font-sans antialiased",
