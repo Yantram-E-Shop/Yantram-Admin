@@ -92,13 +92,8 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
   };
 
   const handleSubmitImage = async (e) => {
-    // if (!image || !productId) {
-    //   setError("Please select an image and ensure the product is created.");
-    //   return;
-    // }
     setIsSubmitting(true);
     try {
-      console.log("image", e.files);
       const formData = new FormData();
       formData.append("images", image); // The key should be "images" as per your API
 
@@ -111,8 +106,6 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
       });
 
       // Call the callback to notify parent of successful addition
-      // onProductAdded();
-      console.log("added");
       onClose(); // Close the modal after both steps are done
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -124,19 +117,31 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
 
   const modalStyles = {
     content: {
-      backgroundColor: "#2d2d2d", // Darker background color for better contrast
-      color: "#f0f0f0", // Light text color for readability
+      // Darker background color for better contrast
+      color: "#000000", // Light text color for readability
       border: "none",
       borderRadius: "10px",
       padding: "20px",
       maxWidth: "600px",
       margin: "auto",
       boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
+      position: "relative", // Ensure modal is properly positioned
+      zIndex: 9999, // Highest z-index
     },
     overlay: {
       backgroundColor: "rgba(0, 0, 0, 0.8)", // Dark overlay
+      zIndex: 9999, // Ensure modal is always on top
     },
   };
+
+  const inputStyles = `
+    w-full mb-4 p-2 bg-white-900 text-black rounded border border-gray-600
+    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+  `;
+
+  const buttonStyles = `
+    w-full py-3 px-4 rounded-lg transition duration-300
+  `;
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} style={modalStyles}>
@@ -144,7 +149,9 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
 
       {step === 1 && (
         <div>
-          <h2 className="text-white text-xl mb-4">Add Product Details</h2>
+          <h2 className="text-white !important text-xl mb-4">
+            Add Product Details
+          </h2>
           <input
             type="text"
             name="title"
@@ -152,7 +159,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             value={productData.title}
             onChange={handleInputChange}
             required
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className={inputStyles}
           />
           <textarea
             name="description"
@@ -160,15 +167,14 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             value={productData.description}
             onChange={handleInputChange}
             required
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className={inputStyles}
           />
-
           {/* Category Dropdown */}
           <select
             name="category"
             value={productData.category}
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className={inputStyles}
             required
           >
             <option value="">Select Category</option>
@@ -178,13 +184,12 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
               </option>
             ))}
           </select>
-
           {/* Subcategory Dropdown */}
           <select
             name="subCategory"
             value={productData.subCategory}
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className={inputStyles}
             required
           >
             <option value="">Select Subcategory</option>
@@ -194,7 +199,6 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
               </option>
             ))}
           </select>
-
           <input
             type="text"
             name="SKU"
@@ -202,7 +206,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             value={productData.SKU}
             onChange={handleInputChange}
             required
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className={inputStyles}
           />
           <input
             type="text"
@@ -211,7 +215,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             value={productData.modelName}
             onChange={handleInputChange}
             required
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className={inputStyles}
           />
           <input
             type="text"
@@ -220,7 +224,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             value={productData.HSN}
             onChange={handleInputChange}
             required
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className={inputStyles}
           />
           <input
             type="number"
@@ -229,13 +233,12 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             value={productData.tax}
             onChange={handleInputChange}
             required
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className={inputStyles}
           />
-
           <button
             onClick={handleNextStep}
             disabled={isSubmitting}
-            className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
+            className={`${buttonStyles} bg-blue-500 text-white hover:bg-blue-600`}
           >
             {isSubmitting ? "Submitting..." : "Next"}
           </button>
@@ -251,12 +254,12 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             type="file"
             onChange={handleImageUpload}
             accept="image/*"
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className={inputStyles}
           />
           <button
             onClick={handleSubmitImage}
             disabled={isSubmitting}
-            className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600 transition duration-200"
+            className={`${buttonStyles} bg-green-500 text-white hover:bg-green-600`}
           >
             {isSubmitting ? "Uploading..." : "Submit Image"}
           </button>
