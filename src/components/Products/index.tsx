@@ -22,7 +22,7 @@ const Products = () => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const onProductAdded = () => {
+  const  onProductAdded = () => {
     closeModal();
     setPage(1);
   }
