@@ -1,6 +1,7 @@
 "use client";
 import useAuthRedirect from "@/hooks/useAuthRedirect";
 import { useLogout } from "@/hooks/useLogout";
+import React from "react";
 
 export default function Home() {
   useAuthRedirect();
@@ -12,8 +13,8 @@ export default function Home() {
 
   return (
     <>
-        <h1>You are logged in as admin</h1>
-        <button onClick={handleLogout}>Logout</button>
+      <h1>You are logged in as admin</h1>
+      <button onClick={handleLogout}>Logout</button>
     </>
   );
 }

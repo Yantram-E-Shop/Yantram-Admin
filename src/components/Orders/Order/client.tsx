@@ -8,9 +8,10 @@ import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { ApiList } from "@/components/ui/api-list";
 import { columns, OrderColumn } from "./columns";
+import React from "react";
 
 interface OrdersClientProps {
-  data: OrderColumn[];
+  data: any[];
   page: number;
   setPage: (page: number) => void;
   totalPages: number;

@@ -8,7 +8,7 @@ import { OrderColumn } from "./Order/columns";
 import { OrdersClient } from "./Order/client";
 
 const Orders = () => {
-  const [orders, setOrders] = useState<OrderColumn[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);

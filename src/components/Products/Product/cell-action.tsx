@@ -17,9 +17,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { ProductColumn } from "./columns";
+import React from "react";
 
 interface CellActionProps {
-  data: ProductColumn;
+  data: any;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
