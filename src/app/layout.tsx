@@ -23,6 +23,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className="dark">
+            <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"></meta>
             <body
                 className={cn(
                     "min-h-screen bg-background font-sans antialiased",
