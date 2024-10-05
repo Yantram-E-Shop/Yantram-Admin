@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState, useContext } from "react";
 import Modal from "react-modal";
 import axios from "axios";

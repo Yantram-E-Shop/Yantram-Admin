@@ -13,7 +13,7 @@ import React from "react";
 interface ProductsClientProps {
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
-  data: ProductColumn[];
+  data: any;
   page: number;
   setPage: (page: number) => void;
   totalPages: number;

@@ -13,7 +13,7 @@ export type OrderColumn = {
   // attributes: { attribute: string; value: string; _id: string }[];
 };
 
-export const columns: ColumnDef<OrderColumn>[] = [
+export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "id",
     header: "ID",

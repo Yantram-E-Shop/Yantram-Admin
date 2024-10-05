@@ -8,7 +8,7 @@ import { OrderColumn } from "./Order/columns";
 import { OrdersClient } from "./Order/client";
 
 const Orders = () => {
-  const [orders, setOrders] = useState<OrderColumn[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
@@ -20,7 +20,7 @@ const Orders = () => {
     const fecthOrders = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://13.201.54.226:5000/api/v1/orders?page=${page}`, {
+        const response = await axios.get(`http://13.201.54.226:5000/api/v1/orders/admin/all?page=${page}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
