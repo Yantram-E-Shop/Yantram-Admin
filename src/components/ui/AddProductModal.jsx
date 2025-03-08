@@ -1,7 +1,9 @@
+"use client";
 import React, { useEffect, useState, useContext } from "react";
 import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
+import { BASE_URL } from "@/api/axios";
 
 const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
   const [step, setStep] = useState(1); // Step 1: Product details, Step 2: Image upload
@@ -14,6 +16,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
     modelName: "",
     HSN: "",
     tax: "",
+    attributes : [],
     originalPrice: 0,
     sellingPrice: [
       { minQuantity: 0, pricePerUnit: 0 },
@@ -26,7 +29,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
     isFeatured: false,
     isOffer: false,
     productCode: "",
-  };
+  };  
   const [productData, setProductData] = useState(defaultProductForm);
 
   const resetForm = () => {
@@ -38,9 +41,26 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
   const [feedback, setFeedback] = useState({ type: "", message: "" });
 
   const [categories, setCategories] = useState([]); // To store categories from API
+  const [attributes, setAttributes] = useState([]); // To store attributes from API
   const [subCategories, setSubCategories] = useState([]); // To store subcategories based on selected category
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
+const [selectedAttributes, setSelectedAttributes] = useState([]); 
+ const [selectedImages, setSelectedImages] = useState([]);
+
+const handleAddAttribute = () => {
+  // Add selected attribute to the product data
+  setProductData((prev) => ({
+    ...prev,
+    attributes: [...prev.attributes, { attribute: "", value: "" }],
+  }));
+};
+
+const handleAttributeChange = (index, field, value) => {
+  const updatedAttributes = [...productData.attributes];
+  updatedAttributes[index][field] = value; // Update the specific field
+  setProductData((prev) => ({ ...prev, attributes: updatedAttributes }));
+};
 
   // Fetch categories on component mount
   useEffect(() => {
@@ -56,6 +76,30 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
 
     fetchCategories();
   }, [accessToken]);
+
+  useEffect(() => {
+    const fetchAttributes = async () => {
+      try {
+         const response = await axios.get(`${BASE_URL}/attributes`, {
+           headers: {
+             Authorization: `Bearer ${accessToken}`,
+           },
+         });
+
+        console.log("Fetched attributes:", response.data.data); // Log the fetched values
+        setAttributes(response.data.data);
+      } catch (error) {
+        console.error("Error fetching attributes:", error);
+        setFeedback({
+          type: "error",
+          message: "Failed to fetch attributes.",
+        });
+      }
+    };
+
+    fetchAttributes();
+  }, [accessToken]);
+
 
   // Fetch subcategories based on selected category
   useEffect(() => {
@@ -115,12 +159,21 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    setImages(files); // Store multiple images
+    const imagePreviews = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+
+    setSelectedImages((prev) => [...prev, ...imagePreviews]);
+    
   };
 
   const handleSubmitImages = async () => {
     setIsSubmitting(true);
     setFeedback({ type: "", message: "" });
+
+     console.log("Submitting product data:", productData);
+     
     try {
       const formData = new FormData();
       images.forEach((image, index) => formData.append("images", image)); // Handle multiple images
@@ -150,6 +203,11 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    console.log("Current productData:", productData);
+  }, [productData]);
+
 
   const modalStyles = {
     content: {
@@ -182,7 +240,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
 
       {step === 1 && (
         <div>
-          <h2 className="text-white text-xl mb-4">Add Product Details</h2>
+          <h2 className="text-black text-xl mb-4">Add Product Details</h2>
 
           {/* Title Input */}
           <input
@@ -191,7 +249,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             placeholder="Title"
             value={productData.title}
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />
 
           {/* Description Input */}
@@ -200,7 +258,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             placeholder="Description"
             value={productData.description}
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />
 
           {/* Original Price Input */}
@@ -212,7 +270,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
               productData.originalPrice === 0 ? "" : productData.originalPrice
             }
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />
 
           {/* Selling Price Inputs */}
@@ -226,7 +284,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
                 onChange={(e) =>
                   handleSellingPriceChange(index, "minQuantity", e.target.value)
                 }
-                className="w-full mb-2 p-2 bg-gray-900 text-white rounded border border-gray-600"
+                className="w-full mb-2 p-2 bg-gray-900 text-black rounded border border-gray-600"
               />
               <input
                 type="number"
@@ -240,17 +298,65 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
                     e.target.value
                   )
                 }
-                className="w-full p-2 bg-gray-900 text-white rounded border border-gray-600"
+                className="w-full p-2 bg-gray-900 text-black rounded border border-gray-600"
               />
             </div>
           ))}
+
+          <h3 className="text-black text-lg mb-2">Add Attributes</h3>
+          {productData.attributes.map((attr, index) => (
+            <div key={index} className="flex mb-4">
+              <select
+                name="attribute"
+                value={attr.attribute} // Change to reflect the updated structure
+                onChange={(e) =>
+                  handleAttributeChange(index, "attribute", e.target.value)
+                }
+                className="w-1/2 mr-2 p-2 bg-gray-900 text-black rounded border border-gray-600"
+              >
+                <option value="">Select Attribute</option>
+                {attributes.map((attribute) => (
+                  <option key={attribute._id} value={attribute._id}>
+                    {" "}
+                    {/* Use attribute._id */}
+                    {attribute.name}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                name="value"
+                value={attr.value} // Change to reflect the updated structure
+                onChange={(e) =>
+                  handleAttributeChange(index, "value", e.target.value)
+                }
+                className="w-1/2 p-2 bg-gray-900 text-black rounded border border-gray-600"
+                disabled={!attr.attribute} // Disable value dropdown if no attribute is selected
+              >
+                <option value="">Select Value</option>
+                {attributes
+                  .find((a) => a._id === attr.attribute) // Adjust the comparison
+                  ?.values.map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          ))}
+          <button
+            onClick={handleAddAttribute}
+            className="text-black bg-blue-500 hover:bg-blue-700 py-1 px-3 rounded mb-4"
+          >
+            Add Another Attribute
+          </button>
 
           {/* Category Select */}
           <select
             name="category"
             value={productData.category}
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           >
             <option value="">Select Category</option>
             {categories.map((category) => (
@@ -265,7 +371,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             name="subCategory"
             value={productData.subCategory}
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           >
             <option value="">Select Subcategory</option>
             {subCategories.map((subCategory) => (
@@ -282,7 +388,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             placeholder="SKU"
             value={productData.SKU}
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />
 
           {/* Other Fields */}
@@ -292,7 +398,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             placeholder="Model Name"
             value={productData.modelName}
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />
 
           <input
@@ -301,7 +407,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             placeholder="HSN"
             value={productData.HSN}
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />
 
           <input
@@ -310,7 +416,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             placeholder="Tax (%)"
             value={productData.tax}
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />
 
           {/* Available Quantity and Sold Quantity Inputs */}
@@ -324,7 +430,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
                 : productData.availableQuantity
             }
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />
 
           <input
@@ -335,7 +441,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
               productData.soldQuantity === 0 ? "" : productData.soldQuantity
             }
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />
 
           {/* Checkboxes */}
@@ -352,7 +458,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
               }
               className="mr-2"
             />
-            <label htmlFor="isAvailable" className="text-white">
+            <label htmlFor="isAvailable" className="text-black">
               Is Available
             </label>
           </div>
@@ -370,7 +476,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
               }
               className="mr-2"
             />
-            <label htmlFor="isFeatured" className="text-white">
+            <label htmlFor="isFeatured" className="text-black">
               Is Featured
             </label>
           </div>
@@ -388,7 +494,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
               }
               className="mr-2"
             />
-            <label htmlFor="isOffer" className="text-white">
+            <label htmlFor="isOffer" className="text-black">
               Is Offer
             </label>
           </div>
@@ -399,14 +505,14 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             placeholder="Product Code"
             value={productData.productCode}
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />
 
           {/* Submit Button */}
           <button
             onClick={handleNextStep}
             disabled={isSubmitting}
-            className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
+            className="w-full p-2 bg-blue-500 text-black rounded hover:bg-blue-600 transition duration-200"
           >
             {isSubmitting ? "Submitting..." : "Next"}
           </button>
@@ -415,7 +521,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
 
       {step === 2 && (
         <div>
-          <h2 className="text-white text-xl mb-4">
+          <h2 className="text-black text-xl mb-4">
             Product Created! Upload Product Images
           </h2>
           <input
@@ -423,8 +529,19 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
             onChange={handleImageUpload}
             accept="image/*"
             multiple
-            className="w-full mb-4 p-2 bg-gray-900 text-white rounded"
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded"
           />
+          <div className="image-previews grid grid-cols-3 gap-4 mb-4">
+            {selectedImages.map(({ preview }, index) => (
+              <div key={index} className="image-preview">
+                <img
+                  src={preview}
+                  alt={`Preview ${index + 1}`}
+                  className="w-full h-auto rounded"
+                />
+              </div>
+            ))}
+          </div>
           <button onClick={handleSubmitImages} disabled={isSubmitting}>
             {isSubmitting ? "Uploading..." : "Submit Images"}
           </button>

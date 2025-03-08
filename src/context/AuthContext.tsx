@@ -8,6 +8,7 @@ import React, {
     useState,
 } from "react";
 
+import { jwtDecode } from "jwt-decode";
 interface AuthState {
     accessToken: string | null;
     refreshToken: string | null;
@@ -45,6 +46,19 @@ export const authReducer = (
     }
 };
 
+const isTokenValid = (token: string | null): boolean => {
+    if (!token) return false;
+    try {
+        const { exp } = jwtDecode<{ exp: number }>(token);
+        if (Date.now() >= exp * 1000) {
+            return false;
+        }
+        return true;
+    } catch (e) {
+        return false;
+    }
+};
+
 export const AuthContextProvider: FC<AuthProviderProps> = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [state, dispatch] = useReducer(authReducer, {
@@ -60,7 +74,7 @@ export const AuthContextProvider: FC<AuthProviderProps> = ({ children }) => {
                 refreshToken: localStorage.getItem("refreshToken") ?? null,
             };
 
-            if (storedAuth && storedAuth.accessToken) {
+            if (storedAuth && isTokenValid(storedAuth.accessToken)) {
                 dispatch({
                     type: "LOGIN",
                     payload: storedAuth,

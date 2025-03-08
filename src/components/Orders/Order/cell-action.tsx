@@ -43,14 +43,21 @@ export const CellAction: React.FC<CellActionProps> = ({ data }:{data:any}) => {
     }
   };
 
+
   const onCopy = (id: string) => {
     navigator.clipboard.writeText(id);
     toast.success("Product ID copied to clipboard.");
   };
 
+  console.log(data)
   return (
     <>
-      <AlertModal isOpen={open} onClose={() => setOpen(false)} onConfirm={onConfirm} loading={loading} />
+      <AlertModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onConfirm={onConfirm}
+        loading={loading}
+      />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="w-8 h-8 p-0">
@@ -63,11 +70,11 @@ export const CellAction: React.FC<CellActionProps> = ({ data }:{data:any}) => {
           <DropdownMenuItem onClick={() => onCopy(data.id)}>
             <Copy className="w-4 h-4 mr-2" /> Copy Id
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push(`/orders/${data.id}`)}>
+          {/* {/* <DropdownMenuItem onClick={() => router.push(`/orders/${data.id}`)}>
             <Edit className="w-4 h-4 mr-2" /> Update
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpen(true)}>
-            <Trash className="w-4 h-4 mr-2" /> Delete
+          </DropdownMenuItem> */}
+          <DropdownMenuItem onClick={() => router.push(`/orders/admin/orders/${data.id}`)}>
+            <Edit className="w-4 h-4 mr-2" /> Show Details
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

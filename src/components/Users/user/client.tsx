@@ -7,26 +7,28 @@ import { DataTable } from "@/components/ui/data-table";
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { ApiList } from "@/components/ui/api-list";
-import { columns, OrderColumn } from "./columns";
+import { columns, UserColumn } from "./columns";
 import React from "react";
 
-interface OrdersClientProps {
+interface UsersClientProps {
   data: any[];
   page: number;
   setPage: (page: number) => void;
   totalPages: number;
-  totalOrders: number;
+  totalUsers: number;
 }
 
-export const OrdersClient: React.FC<OrdersClientProps> = ({ data, page, setPage, totalPages, totalOrders }) => {
+export const UsersClient: React.FC<UsersClientProps> = ({ data, page, setPage, totalPages, totalUsers }) => {
   const params = useParams();
   const router = useRouter();
 
   return (
     <>
       <div className="flex items-center justify-between">
-        <Heading title={`Orders (${totalOrders})`} description="Manage products for your store" />
-       
+        <Heading title={`Users (${totalUsers})`} description="Manage users of your platform" />
+        <Button onClick={() => router.push(`/users/new`)}>
+          <Plus className="w-4 h-4 mr-2" /> Add New
+        </Button>
       </div>
       <Separator />
       <DataTable searchKey="id" columns={columns} data={data} />
@@ -41,9 +43,9 @@ export const OrdersClient: React.FC<OrdersClientProps> = ({ data, page, setPage,
           Next
         </Button>
       </div>
-      <Heading title="API" description="API Calls for Orders" />
+      <Heading title="API" description="API Calls for Users" />
       <Separator />
-      <ApiList entityName="orders" entityIdName="orderId" />
+      <ApiList entityName="users" entityIdName="userId" />
     </>
   );
 };

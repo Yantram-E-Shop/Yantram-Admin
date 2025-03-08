@@ -10,13 +10,14 @@ export type OrderColumn = {
   address: string;
   status: string;
   createdAt: string;
+  id : string;
   // attributes: { attribute: string; value: string; _id: string }[];
 };
 
 export const columns: ColumnDef<any>[] = [
   {
-    accessorKey: "id",
-    header: "ID",
+    accessorKey: "orderId",
+    header: "Order ID",
   },
   {
     accessorKey: "paymentMethod",

@@ -21,7 +21,7 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/ui/AddAttributeModal.jsx", "src/components/Attributes/Attribute/ValueAction.jsx", "src/components/ui/UpdateAttributeModal.jsx"],
   "exclude": ["node_modules"]
 }
  
