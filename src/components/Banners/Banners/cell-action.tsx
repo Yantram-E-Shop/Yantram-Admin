@@ -3,11 +3,12 @@
 import axios from "axios";
 import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { AuthContext } from "@/context/AuthContext";
+import { useContext, useState } from "react";
 import { toast } from "react-hot-toast";
-import  UpdateOrderStatusModal  from "../../ui/UpdateOrderStatusModal.jsx"
 
 import { AlertModal } from "@/components/modals/alert-modal";
+import  EditProductModal  from "../../ui/EditProductModal.jsx"
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,36 +17,32 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { OrderColumn } from "./columns";
+
 import React from "react";
 
-
 interface CellActionProps {
-  data: OrderColumn;
+  data: any;
 }
 
-export const CellAction: React.FC<CellActionProps> = ({ data }:{data:any}) => {
+export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [selectedBanner, setSelectedBanner] = useState(null); // Track selected product
+
   const router = useRouter();
   const params = useParams();
-  const [orderstatusModalOpen, setOrderstatusModalOpen] = useState(false); // Modal state
-  const [selectedOrder, setSelectedOrder] = useState(null); // Track selected product
-
-  const handleOpenOrderStatusModal = () => {
-    setSelectedOrder(data); // Store selected product
-    setOrderstatusModalOpen(true); // Open modal
-  };
-
-  const handleOrderStatusUpdated = () => {
-    setOrderstatusModalOpen(false); // Close modal after update
-    router.refresh(); // Refresh product list
-  };
+  const authContext = useContext(AuthContext);
+  const accessToken = authContext?.accessToken;
 
   const onConfirm = async () => {
     try {
       setLoading(true);
-      toast.success("order window updated.");
+      await axios.delete(`/api/v1/banner/delete/${data._id}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      toast.success("Banner deleted.");
       router.refresh();
     } catch (error) {
       toast.error("Something went wrong");
@@ -55,30 +52,30 @@ export const CellAction: React.FC<CellActionProps> = ({ data }:{data:any}) => {
     }
   };
 
-
   const onCopy = (id: string) => {
     navigator.clipboard.writeText(id);
-    toast.success("Product ID copied to clipboard.");
+    toast.success("Banner ID copied to clipboard.");
   };
 
-  console.log(data)
+  const handleOpenEditModal = () => {
+    setSelectedBanner(data); // Store selected product
+  };
+
+  const handleProductUpdated = () => {
+    router.refresh(); // Refresh product list
+  };
+
   return (
     <>
+      {/* Delete Confirmation Modal */}
       <AlertModal
         isOpen={open}
         onClose={() => setOpen(false)}
         onConfirm={onConfirm}
         loading={loading}
       />
-      {/* update order status Modal */}
-      {orderstatusModalOpen && selectedOrder && (
-        <UpdateOrderStatusModal
-          orderId={selectedOrder._id}
-          isOpen={orderstatusModalOpen}
-          onClose={() => setOrderstatusModalOpen(false)}
-          onOrderStatusupdate={handleOrderStatusUpdated}
-        />
-      )}
+
+      {/* Dropdown Menu */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="w-8 h-8 p-0">
@@ -91,14 +88,8 @@ export const CellAction: React.FC<CellActionProps> = ({ data }:{data:any}) => {
           <DropdownMenuItem onClick={() => onCopy(data.id)}>
             <Copy className="w-4 h-4 mr-2" /> Copy Id
           </DropdownMenuItem>
-          {/* {/* <DropdownMenuItem onClick={() => router.push(`/orders/${data.id}`)}>
-            <Edit className="w-4 h-4 mr-2" /> Update
-          </DropdownMenuItem> */}
-          <DropdownMenuItem onClick={() => router.push(`/orders/admin/orders/${data.id}`)}>
-            <Edit className="w-4 h-4 mr-2" /> Show Details
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleOpenOrderStatusModal}>
-            <Edit className="w-4 h-4 mr-2" /> Change Order Status
+          <DropdownMenuItem onClick={() => setOpen(true)}>
+            <Trash className="w-4 h-4 mr-2" /> Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
