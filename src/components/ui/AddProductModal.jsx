@@ -159,6 +159,7 @@ const handleAttributeChange = (index, field, value) => {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
+    setImages(files); 
     const imagePreviews = files.map((file) => ({
       file,
       preview: URL.createObjectURL(file),

@@ -60,8 +60,7 @@ const UserDetails = () => {
         <strong>Role:</strong> {userDetails.role}
       </p>
       <p>
-        <strong>Email Verified:</strong>{" "}
-        {userDetails.isEmailVerified ? "Yes" : "No"}
+        <strong>FCM Token:</strong>{userDetails.fcmToken}
       </p>
       <p>
         <strong>Number Verified:</strong>{" "}

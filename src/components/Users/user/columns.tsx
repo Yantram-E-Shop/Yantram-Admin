@@ -8,7 +8,7 @@ export type UserColumn = {
   fullName: string;
   phoneNumber: string;
   role: string;
-  emailVerified: string;
+  fcmToken: string;
   numberVerified: string;
   createdAt: string;
 };
@@ -31,8 +31,8 @@ export const columns: ColumnDef<any>[] = [
     header: "Role",
   },
   {
-    accessorKey: "emailVerified",
-    header: "Email Verified",
+    accessorKey: "fcmToken",
+    header: "FCM Token",
   },
   {
     accessorKey: "numberVerified",

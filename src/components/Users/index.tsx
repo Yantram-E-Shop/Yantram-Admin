@@ -45,7 +45,7 @@ const Users = () => {
     fullName: user.fullName || "N/A",
     phoneNumber: user.phoneNumber || "N/A",
     role: user.role || "N/A",
-    emailVerified: user.isEmailVerified ? "Yes" : "No",
+    fcmToken: user.fcmToken || "N/A",
     numberVerified: user.isNumberVerified ? "Yes" : "No",
     createdAt: format(new Date(user.createdAt), "MMMM do, yyyy"),
   }));
