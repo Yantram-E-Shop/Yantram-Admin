@@ -19,7 +19,7 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
     // Handle input changes
     const handleInputChange = (e) => {
       const { name, value } = e.target;
-      console.log("Changed field:", name, "Value:", value); // Debug lo
+      console.log("Changed field:", name, "selected value:", value); // Debug lo
       setOrderData((prev) => ({ ...prev, [name]: value }));
     };
   
@@ -29,8 +29,7 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
       setFeedback({ type: "", message: "" });
   
       try {
-        const formData = new FormData();
-        formData.append("status", orderData.status);
+        const payLoad = {"status": orderData.status};
 
         if (!orderData.status) {
             setFeedback({
@@ -40,9 +39,9 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
             return;
           }
   
-        const response = await axios.put(`${BASE_URL}/orders/${orderId}`, formData, {
+        const response = await axios.put(`${BASE_URL}/orders/${orderId}`, payLoad, {
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
         });

@@ -7,32 +7,32 @@ import { DataTable } from "@/components/ui/data-table";
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { ApiList } from "@/components/ui/api-list";
-import { BannerColumn, columns } from "./columns";
+import { FaqColumn, columns } from "./columns";
 import React from "react";
 
-interface BannersClientProps {
+interface FaqsClientProps {
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
   data: any;
 }
 
-export const BannersClient: React.FC<BannersClientProps> = ({ isModalOpen, setIsModalOpen, data }) => {
+export const FaqsClient: React.FC<FaqsClientProps> = ({ isModalOpen, setIsModalOpen, data }) => {
   const params = useParams();
   const router = useRouter();
 
   return (
     <>
       <div className="flex items-center justify-between">
-        <Heading title={`Banners`} description="Manage banners for your store" />
+        <Heading title={`Faqs`} description="Manage Faqs for your store" />
         <Button onClick={() => { setIsModalOpen(true) }}>
           <Plus className="w-4 h-4 mr-2" /> Add New
         </Button>
       </div >
       <Separator />
-      <DataTable searchKey="title" columns={columns} data={data} />
-      <Heading title="API" description="API Calls for Banners" />
+      <DataTable searchKey="question" columns={columns} data={data} />
+      <Heading title="API" description="API Calls for Faqs" />
       <Separator />
-      <ApiList entityName="banners" entityIdName="bannerId" />
+      <ApiList entityName="Faqs" entityIdName="FaqId" />
     </>
   );
 };

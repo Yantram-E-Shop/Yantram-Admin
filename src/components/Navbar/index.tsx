@@ -126,6 +126,15 @@ export function Navbar() {
                             </NavigationMenuLink>
                         </Link>
                     </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <Link href="/Faqs" legacyBehavior passHref>
+                            <NavigationMenuLink
+                                className={navigationMenuTriggerStyle()}
+                            >
+                                FAQs
+                            </NavigationMenuLink>
+                        </Link>
+                    </NavigationMenuItem>
                 </div>
             </NavigationMenuList>
             <NavigationMenuList>
