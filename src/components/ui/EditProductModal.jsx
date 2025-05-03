@@ -553,33 +553,77 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
   };
 
   const handleImageUpload = (e) => {
+    console.log(productData);
     const files = Array.from(e.target.files);
     const imagePreviews = files.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
     }));
 
-    setSelectedImages((prev) => [...prev, ...imagePreviews]);
+    setSelectedImages(imagePreviews);
   };
 
   const handleSubmitImages = async () => {
     setIsSubmitting(true);
     setFeedback({ type: "", message: "" });
-
+  
     try {
       const formData = new FormData();
-      // Combine old images with new ones
-      selectedImages.forEach((image) => {
-        if (image.file) formData.append("images", image.file);
-      });
+  
+      if (selectedImages.length > 0 && selectedImages.some((img) => img.file)) {
+        selectedImages.forEach((image) => {
+          if (image.file) {
+            formData.append("images", image.file);
+          }
+        });
 
+        // Assumes backend can accept existing image references as part of payload
+        const payload = {
+          images: productData.imageNames, // assumes these are strings (URLs or filenames)
+        };
+        console.log(productData.imageNames);
+  
+        await axios.put(
+          `/api/v1/products/${productId}/images/delete`,
+          payload,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+      } else {
+        // ✅ No new images — send existing image URLs or identifiers
+        // Assumes backend can accept existing image references as part of payload
+        // const payload = {
+        //   images: productData.images, // assumes these are strings (URLs or filenames)
+        // };
+  
+        // await axios.put(
+        //   `/api/v1/products/${productId}/images`,
+        //   payload,
+        //   {
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //       Authorization: `Bearer ${accessToken}`,
+        //     },
+        //   }
+        // );
+  
+        onProductUpdated();
+        onClose();
+        return;
+      }
+  
+      // If new images were uploaded
       await axios.put(`/api/v1/products/${productId}/images`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${accessToken}`,
         },
       });
-
+  
       onProductUpdated();
       onClose();
     } catch (error) {
@@ -592,6 +636,7 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
       setIsSubmitting(false);
     }
   };
+  
 
   const modalStyles = {
     content: {
