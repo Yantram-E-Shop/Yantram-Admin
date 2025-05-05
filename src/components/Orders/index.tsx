@@ -42,7 +42,7 @@ const Orders = () => {
 
   const formattedOrders = orders.map((item) => ({
     orderId: item.orderID,
-    paymentMethod: item.paymentMethod,
+    paymentInfo: item.paymentInfo?.mode,
     totalPrice: item.totalPrice,
     address: item.address?.fullAddress + " " + item.address?.landmark + " " + item.address?.district + " " + item.address?.state + " " + item.address?.phoneNumber + " " + item.address?.alternatePhoneNumber|| "N/A",
     // attributes: item.attributes.map(attr => attr.value).join(', ') || "N/A",

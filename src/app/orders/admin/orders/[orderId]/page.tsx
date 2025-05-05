@@ -59,8 +59,8 @@ const OrderDetails = () => {
         <strong>Last Updated:</strong>{" "}
         {new Date(order.updatedAt).toLocaleString()}
       </p>
-      <p>
-        <strong>Payment Info:</strong> {order.paymentInfo || "N/A"}
+        <p>
+        <strong>Payment Mode:</strong> {order.paymentInfo?.mode || "N/A"}
       </p>
       <p>
         <strong>Shipping Partner:</strong> {order.shippingPartner || "N/A"}
@@ -110,11 +110,11 @@ const OrderDetails = () => {
         <ul>
           {order.items.map((item: any) => (
             <li
-              key={item.product._id}
+              key={item?.product?._id}
               className="border p-4 mt-2 rounded-md "
             >
               <p>
-                <strong>Product:</strong> {item.product.title}
+                <strong>Product:</strong> {item?.product?.title}
               </p>
               <p>
                 <strong>Quantity:</strong> {item.quantity}

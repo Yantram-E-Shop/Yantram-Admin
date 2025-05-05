@@ -20,7 +20,7 @@ export const columns: ColumnDef<any>[] = [
     header: "Order ID",
   },
   {
-    accessorKey: "paymentMethod",
+    accessorKey: "paymentInfo",
     header: "Payment Method",
   },
   {
