@@ -14,6 +14,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
     subCategory: "",
     SKU: "",
     modelName: "",
+    minQuantity:0,
     HSN: "",
     tax: "",
     attributes : [],
@@ -45,8 +46,8 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
   const [subCategories, setSubCategories] = useState([]); // To store subcategories based on selected category
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
-const [selectedAttributes, setSelectedAttributes] = useState([]); 
- const [selectedImages, setSelectedImages] = useState([]);
+  const [selectedAttributes, setSelectedAttributes] = useState([]); 
+  const [selectedImages, setSelectedImages] = useState([]);
 
 const handleAddAttribute = () => {
   // Add selected attribute to the product data
@@ -398,6 +399,15 @@ const handleAttributeChange = (index, field, value) => {
             name="modelName"
             placeholder="Model Name"
             value={productData.modelName}
+            onChange={handleInputChange}
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
+          />
+
+          <input
+            type="number"
+            name="minQuantity"
+            placeholder="Minimum Order Quantity"
+            value={productData.minQuantity === 0 ? "" : productData.minQuantity}
             onChange={handleInputChange}
             className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />
