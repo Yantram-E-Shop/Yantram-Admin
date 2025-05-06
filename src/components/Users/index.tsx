@@ -47,6 +47,7 @@ const Users = () => {
     role: user.role || "N/A",
     fcmToken: user.fcmToken || "N/A",
     numberVerified: user.isNumberVerified ? "Yes" : "No",
+    state:user.state || "Active",
     createdAt: format(new Date(user.createdAt), "MMMM do, yyyy"),
   }));
 

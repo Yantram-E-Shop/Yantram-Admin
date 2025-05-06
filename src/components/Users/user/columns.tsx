@@ -10,6 +10,7 @@ export type UserColumn = {
   role: string;
   fcmToken: string;
   numberVerified: string;
+  state:string;
   createdAt: string;
 };
 
@@ -37,6 +38,10 @@ export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "numberVerified",
     header: "Number Verified",
+  },
+  {
+    accessorKey: "state",
+    header: "Status",
   },
   {
     accessorKey: "createdAt",

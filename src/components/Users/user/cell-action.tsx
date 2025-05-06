@@ -3,8 +3,10 @@
 import axios from "axios";
 import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState,useContext } from "react";
 import { toast } from "react-hot-toast";
+import { AuthContext } from "@/context/AuthContext";
+import { BASE_URL } from "@/api/axios";
 
 import { AlertModal } from "@/components/modals/alert-modal";
 import { Button } from "@/components/ui/button";
@@ -28,6 +30,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }: { data: any }) =
   const router = useRouter();
   const params = useParams();
 
+  const authContext = useContext(AuthContext);
+  const accessToken = authContext?.accessToken;
+
   const onConfirm = async () => {
     try {
       setLoading(true);
@@ -47,6 +52,46 @@ export const CellAction: React.FC<CellActionProps> = ({ data }: { data: any }) =
     toast.success("User ID copied to clipboard.");
   };
 
+  const BlockUser = async(id: string) => {
+    try {
+      setLoading(true);
+      const payLoad = {"state" : "Blocked"};
+      const response = await axios.put(`${BASE_URL}/user/userstate/${id}`, payLoad, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+      toast.success("User Blocked.");
+      router.refresh();
+    } catch (error) {
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
+      setOpen(false);
+    }
+  };
+
+  const ActivateUser = async(id: string) => {
+    try {
+      setLoading(true);
+      const payLoad = {"state" : "Active"};
+      const response = await axios.put(`${BASE_URL}/user/userstate/${id}`, payLoad, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+      toast.success("User is active again.");
+      router.refresh();
+    } catch (error) {
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
+      setOpen(false);
+    }
+  };
+
   return (
     <>
       <AlertModal isOpen={open} onClose={() => setOpen(false)} onConfirm={onConfirm} loading={loading} />
@@ -61,6 +106,12 @@ export const CellAction: React.FC<CellActionProps> = ({ data }: { data: any }) =
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem onClick={() => onCopy(data.id)}>
             <Copy className="w-4 h-4 mr-2" /> Copy ID
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => BlockUser(data.id)}>
+            <Copy className="w-4 h-4 mr-2" /> Block User
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => ActivateUser(data.id)}>
+            <Copy className="w-4 h-4 mr-2" /> Activate User
           </DropdownMenuItem>
           {/* <DropdownMenuItem onClick={() => router.push(`/users/${data.id}`)}>
             <Edit className="w-4 h-4 mr-2" /> Update
