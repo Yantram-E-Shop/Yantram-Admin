@@ -399,6 +399,7 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
     subCategory: "",
     SKU: "",
     modelName: "",
+    minQuantity:0,
     HSN: "",
     tax: "",
     attributes: [],
@@ -527,6 +528,7 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
     setIsSubmitting(true);
     setFeedback({ type: "", message: "" });
     try {
+      
       const response = await axios.put(
         `/api/v1/products/${productId}`,
         { content: productData },
@@ -739,6 +741,16 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
             onChange={handleInputChange}
             className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />
+
+          <input
+            type="number"
+            name="minQuantity"
+            placeholder="Minimum Order Quantity"
+            value={productData.minQuantity === 0 ? "" : productData.minQuantity}
+            onChange={handleInputChange}
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
+          />
+
 
           {/* HSN */}
           <input

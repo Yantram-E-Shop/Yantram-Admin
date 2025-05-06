@@ -6,6 +6,7 @@ import { AuthContext } from "@/context/AuthContext";
 import Loader from "../ui/loader";
 import { OrderColumn } from "./Order/columns";
 import { OrdersClient } from "./Order/client";
+import UpdateMinOrderValue from "../ui/UpdateMinOrderValue";
 
 const Orders = () => {
   const [orders, setOrders] = useState<any[]>([]);
@@ -15,6 +16,11 @@ const Orders = () => {
   const [loading, setLoading] = useState(false);
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   useEffect(() => {
     const fecthOrders = async () => {
@@ -51,8 +57,6 @@ const Orders = () => {
     id : item._id,
   }));
 
-  console.log(formattedOrders);
-
   if(loading) {
     return(
         <Loader />
@@ -62,12 +66,15 @@ const Orders = () => {
     <div className="flex-col">
       <div className="flex-1 p-8 pt-6 space-y-4">
         <OrdersClient
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
           data={formattedOrders}
           page={page}
           setPage={setPage}
           totalPages={totalPages}
           totalOrders={totalOrders}
         />
+        <UpdateMinOrderValue isOpen={isModalOpen} onClose={closeModal} />
       </div>
     </div>
   );

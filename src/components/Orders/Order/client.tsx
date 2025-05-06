@@ -11,6 +11,8 @@ import { columns, OrderColumn } from "./columns";
 import React from "react";
 
 interface OrdersClientProps {
+  isModalOpen: boolean;
+  setIsModalOpen: (isOpen: boolean) => void;
   data: any[];
   page: number;
   setPage: (page: number) => void;
@@ -18,14 +20,17 @@ interface OrdersClientProps {
   totalOrders: number;
 }
 
-export const OrdersClient: React.FC<OrdersClientProps> = ({ data, page, setPage, totalPages, totalOrders }) => {
+export const OrdersClient: React.FC<OrdersClientProps> = ({ isModalOpen, setIsModalOpen, data, page, setPage, totalPages, totalOrders }) => {
   const params = useParams();
   const router = useRouter();
 
   return (
     <>
       <div className="flex items-center justify-between">
-        <Heading title={`Orders (${totalOrders})`} description="Manage products for your store" />
+        <Heading title={`Orders (${totalOrders})`} description="Manage Orders for your store" />
+        <Button onClick={() => { setIsModalOpen(true) }}>
+              <Plus className="w-4 h-4 mr-2" /> Update MinOrder Value
+        </Button>
        
       </div>
       <Separator />
