@@ -17,23 +17,24 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import React from "react";
+import AddZoneModal from "../../ui/AddZoneModal";
 
 interface CellActionProps {
   data: any;
+  existingZones: any[];
+  onZoneAdded: (zone: any) => void;
 }
 
-export const CellAction: React.FC<CellActionProps> = ({ data }) => {
+export const CellAction: React.FC<CellActionProps> = ({ data, existingZones, onZoneAdded }) => {
   const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [selectedZone, setSelectedZone] = useState(null); // Track selected product
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const router = useRouter();
-  const params = useParams();
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
 
-  const onConfirm = async () => {
+  const onConfirmDelete = async () => {
     try {
       setLoading(true);
       await axios.delete(`/api/v1/zone/${data.name}`, {
@@ -47,7 +48,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       toast.error("Something went wrong");
     } finally {
       setLoading(false);
-      setOpen(false);
+      setDeleteModalOpen(false);
     }
   };
 
@@ -56,17 +57,25 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     toast.success("Zone ID copied to clipboard.");
   };
 
-  const handleOpenEditModal = () => {
-    setSelectedZone(data); // Store selected product
-  };
-
   return (
     <>
+      {/* ✅ Edit/Create Modal */}
+      <AddZoneModal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        onZoneAdded={(zone) => {
+          onZoneAdded(zone); // Notify parent
+          setEditModalOpen(false);
+        }}
+        existingZones={existingZones}
+        zoneToEdit={data} // Pass current zone for editing
+      />
+
       {/* Delete Confirmation Modal */}
       <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onConfirm}
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={onConfirmDelete}
         loading={loading}
       />
 
@@ -83,7 +92,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuItem onClick={() => onCopy(data.id)}>
             <Copy className="w-4 h-4 mr-2" /> Copy Id
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpen(true)}>
+          <DropdownMenuItem onClick={() => setEditModalOpen(true)}>
+            <Edit className="w-4 h-4 mr-2" /> Update
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setDeleteModalOpen(true)}>
             <Trash className="w-4 h-4 mr-2" /> Delete
           </DropdownMenuItem>
         </DropdownMenuContent>

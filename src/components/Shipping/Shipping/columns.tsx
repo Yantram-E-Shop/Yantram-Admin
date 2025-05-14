@@ -11,8 +11,11 @@ export type ShippingColumn = {
   createdAt: string;
 };
 
-export const columns: ColumnDef<ShippingColumn>[] = [
-  {
+export const generateColumns = (
+  existingZones: ShippingColumn[],
+  onZoneAdded: (zone: any) => void
+): ColumnDef<ShippingColumn>[] => [
+ {
     accessorKey: "_id",
     header: "ID",
   },
@@ -34,6 +37,6 @@ export const columns: ColumnDef<ShippingColumn>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <CellAction data={row.original} />,
+    cell: ({ row }) => <CellAction data={row.original} existingZones={existingZones} onZoneAdded={onZoneAdded} />,
   },
 ];

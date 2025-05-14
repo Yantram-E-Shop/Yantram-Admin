@@ -16,7 +16,7 @@ export type CategoryColumn = {
 };
 
 // Adjusted columns for category data
-export const columns: ColumnDef<CategoryColumn>[] = [
+export const getColumns = (allCategories: CategoryColumn[]): ColumnDef<CategoryColumn>[] => [
   {
     accessorKey: "_id",
     header: "ID",
@@ -37,6 +37,7 @@ export const columns: ColumnDef<CategoryColumn>[] = [
               <SubcategoryAction 
                 subcategoryId={subcat._id} 
                 onSubcategoryDeleted={() => { /* Add a function to refetch categories or update state */ }} 
+                categories={allCategories}
               />
             </div>
           ))

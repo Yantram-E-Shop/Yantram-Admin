@@ -4,14 +4,26 @@ import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 
-const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded }) => {
+const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit }) => {
   const [categoryName, setCategoryName] = useState("");
   const [logo, setLogo] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState({ type: "", message: "" });
+  const [logoPreview, setLogoPreview] = useState(null); // For logo preview
 
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
+
+  // Set initial values when the modal opens in "edit" mode
+  useEffect(() => {
+    if (categoryToEdit) {
+      setCategoryName(categoryToEdit.name);
+      setLogoPreview(categoryToEdit.logoUrl); // Set the existing logo URL for preview
+    } else {
+      setCategoryName("");
+      setLogoPreview(null); // Reset preview if not editing
+    }
+  }, [categoryToEdit]);
 
   const handleInputChange = (e) => {
     setCategoryName(e.target.value);
@@ -20,52 +32,83 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded }) => {
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
     setLogo(file);
+
+    // Create a URL for the logo preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setLogoPreview(reader.result);
+    };
+    if (file) reader.readAsDataURL(file);
   };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setFeedback({ type: "", message: "" });
+
     try {
-      // Step 1: Create category
-      const response = await axios.post(
-        `/api/v1/category`,
-        { name: categoryName },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      let response;
+      let formData = new FormData();
+
+      // Step 1: Handle category creation or update
+      if (categoryToEdit) {
+        // Update category if we are editing an existing one
+        formData.append("name", categoryName);
+        formData.append("logoUpdated", logo);
+        response = await axios.put(
+          `/api/v1/category/${categoryToEdit._id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+      } else {
+        // Create new category
+        response = await axios.post(
+          `/api/v1/category`,
+          { name: categoryName },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+      
 
       const createdCategoryId = response.data.data._id;
 
-      // Step 2: Upload logo
-      const formData = new FormData();
-      formData.append("logo", logo);
-
-      await axios.put(
-        `/api/v1/category/${createdCategoryId}/updateLogo`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      // Step 2: Upload the logo if provided
+      if (logo) {
+        formData.append("logo", logo);
+        await axios.put(
+          `/api/v1/category/${createdCategoryId}/updateLogo`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+      }
+    }
 
       setFeedback({
         type: "success",
-        message: "Category created successfully with logo!",
+        message: categoryToEdit
+          ? "Category updated successfully!"
+          : "Category created successfully with logo!",
       });
-      onCategoryAdded(); // Trigger the callback function
+      onCategoryAdded(); // Trigger the callback function to update the category list
       resetForm();
       onClose(); // Close the modal
     } catch (error) {
-      console.error("Error adding category:", error);
+      console.error("Error adding/updating category:", error);
       setFeedback({
         type: "error",
-        message: "Failed to add category. Please try again.",
+        message: "Failed to add/update category. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -75,6 +118,7 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded }) => {
   const resetForm = () => {
     setCategoryName("");
     setLogo(null);
+    setLogoPreview(null);
   };
 
   const modalStyles = {
@@ -105,7 +149,9 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded }) => {
           {feedback.message}
         </p>
       )}
-      <h2 className="text-white text-xl mb-4">Add New Category</h2>
+      <h2 className="text-white text-xl mb-4">
+        {categoryToEdit ? "Update Category" : "Add New Category"}
+      </h2>
 
       <input
         type="text"
@@ -122,12 +168,23 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded }) => {
         className="w-full mb-4 p-2 bg-gray-900 text-white rounded"
       />
 
+      {logoPreview && (
+        <div className="mb-4">
+          <h3>Logo Preview:</h3>
+          <img
+            src={logoPreview}
+            alt="Logo preview"
+            className="w-32 h-32 object-cover rounded"
+          />
+        </div>
+      )}
+
       <button
         onClick={handleSubmit}
         disabled={isSubmitting}
         className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
       >
-        {isSubmitting ? "Submitting..." : "Add Category"}
+        {isSubmitting ? "Submitting..." : categoryToEdit ? "Update Category" : "Add Category"}
       </button>
     </Modal>
   );

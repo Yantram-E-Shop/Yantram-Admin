@@ -1,35 +1,35 @@
 "use client";
 
 import axios from "axios";
-import { Button } from "@/components/ui/button"; // Assuming you have a Button component
+import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
 import { BASE_URL } from "@/api/axios";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "@/context/AuthContext";
-
+import AddSubcategoryModal from "@/components/ui/AddSubcategoryModal";
 
 interface SubcategoryActionProps {
   subcategoryId: string;
-  onSubcategoryDeleted: () => void; // Callback to refresh subcategories
+  onSubcategoryDeleted: () => void;
+  categories: any[];
 }
 
 const SubcategoryAction: React.FC<SubcategoryActionProps> = ({
   subcategoryId,
   onSubcategoryDeleted,
+  categories,
 }) => {
-
-      const authContext = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
-  
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
   const handleDelete = async () => {
     try {
       await axios.delete(`${BASE_URL}/sub-category/${subcategoryId}`, {
-         headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }); // Adjust URL as per your API
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       toast.success("Subcategory deleted.");
-      onSubcategoryDeleted(); // Call the function to refresh
+      onSubcategoryDeleted();
     } catch (error) {
       toast.error("Error deleting subcategory.");
     }
@@ -40,7 +40,22 @@ const SubcategoryAction: React.FC<SubcategoryActionProps> = ({
       <Button variant="outline" onClick={handleDelete}>
         Delete
       </Button>
-      {/* You can add Edit button here as well */}
+      <Button variant="outline" onClick={() => setIsEditOpen(true)}>
+        Edit
+      </Button>
+
+      {isEditOpen && (
+        <AddSubcategoryModal
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          onSubcategoryAdded={() => {
+            setIsEditOpen(false);
+            onSubcategoryDeleted();
+          }}
+          subcategoryToEdit={subcategoryId}
+          categories={categories} // optionally pass categories list if needed
+        />
+      )}
     </div>
   );
 };

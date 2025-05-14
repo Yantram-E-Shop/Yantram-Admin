@@ -8,13 +8,14 @@ import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { ApiList } from "@/components/ui/api-list";
 import React from "react";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 
 interface CategoryClientProps {
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
   setIsSubcategoryModalOpen: (isOpen: boolean) => void; // New prop for subcategory modal
   data: any;
+  rawCategories: any[]; 
 }
 
 export const CategoryClient: React.FC<CategoryClientProps> = ({
@@ -22,6 +23,7 @@ export const CategoryClient: React.FC<CategoryClientProps> = ({
   setIsModalOpen,
   setIsSubcategoryModalOpen, // New prop for subcategory modal
   data,
+  rawCategories,
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -38,7 +40,7 @@ export const CategoryClient: React.FC<CategoryClientProps> = ({
         </Button>
       </div>
       <Separator />
-      <DataTable searchKey="id" columns={columns} data={data} />
+      <DataTable searchKey="id" columns={getColumns(rawCategories)} data={data} />
 
       <Heading title="API" description="API Calls for Categories" />
       <Separator />

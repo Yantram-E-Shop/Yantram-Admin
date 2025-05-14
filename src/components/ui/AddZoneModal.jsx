@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
@@ -17,7 +17,7 @@ const indianStates = [
   "Lakshadweep"
 ];
 
-const AddZoneModal = ({ isOpen, onClose, onZoneAdded, existingZones }) => {
+const AddZoneModal = ({ isOpen, onClose, onZoneAdded, existingZones, zoneToEdit }) => {
   const [zoneData, setZoneData] = useState({
     name: "",
     states: [],
@@ -30,13 +30,31 @@ const AddZoneModal = ({ isOpen, onClose, onZoneAdded, existingZones }) => {
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
 
+  useEffect(() => {
+    if (zoneToEdit) {
+      // Prefill form with existing data
+      setZoneData({
+        name: zoneToEdit.name || "",
+        states: zoneToEdit.states || [],
+        shippingFee: zoneToEdit.shippingFee?.toString() || "",
+      });
+    } else {
+      // Reset form
+      setZoneData({ name: "", states: [], shippingFee: "" });
+    }
+
+    setFeedback({ type: "", message: "" });
+  }, [zoneToEdit, isOpen]);
+
   const getUsedStates = () => {
-    return existingZones.flatMap((zone) => zone.states);
+    return existingZones
+      .filter((zone) => !zoneToEdit || zone._id !== zoneToEdit._id)
+      .flatMap((zone) => zone.states);
   };
 
   const usedStates = getUsedStates();
   const availableStates = indianStates.filter(
-    (state) => !usedStates.includes(state)
+    (state) => !usedStates.includes(state) || (zoneToEdit?.states || []).includes(state)
   );
 
   const handleInputChange = (e) => {
@@ -72,28 +90,42 @@ const AddZoneModal = ({ isOpen, onClose, onZoneAdded, existingZones }) => {
     }
 
     try {
-        
-      const payLoad = {
+      const payload = {
         name,
         states,
         shippingFee: parseFloat(shippingFee),
       };
-        const response = await axios.post(`${BASE_URL}/zone`, payLoad, {
-            headers: {
+
+      let response;
+
+      if (zoneToEdit) {
+        // Update existing zone
+        response = await axios.put(`${BASE_URL}/zone/${zoneToEdit.name}`, payload, {
+          headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
-            },
+          },
         });
+        setFeedback({ type: "success", message: "Zone updated successfully!" });
+      } else {
+        // Create new zone
+        response = await axios.post(`${BASE_URL}/zone`, payload, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        setFeedback({ type: "success", message: "Zone created successfully!" });
+      }
 
-      setFeedback({ type: "success", message: "Zone created successfully!" });
       onZoneAdded(response.data.data);
       onClose();
       setZoneData({ name: "", states: [], shippingFee: "" });
     } catch (error) {
-      console.error("Error creating zone:", error);
+      console.error("Error submitting zone:", error);
       setFeedback({
         type: "error",
-        message: error?.response?.data?.message || "Failed to create zone.",
+        message: error?.response?.data?.message || "Failed to submit zone.",
       });
     } finally {
       setIsSubmitting(false);
@@ -125,7 +157,9 @@ const AddZoneModal = ({ isOpen, onClose, onZoneAdded, existingZones }) => {
         </p>
       )}
 
-      <h2 className="text-black text-xl mb-4">Add Zone</h2>
+      <h2 className="text-black text-xl mb-4">
+        {zoneToEdit ? "Edit Zone" : "Add Zone"}
+      </h2>
 
       {/* Zone Name */}
       <input
@@ -171,7 +205,13 @@ const AddZoneModal = ({ isOpen, onClose, onZoneAdded, existingZones }) => {
         disabled={isSubmitting}
         className="w-full p-2 bg-blue-500 text-black rounded hover:bg-blue-600 transition duration-200"
       >
-        {isSubmitting ? "Submitting..." : "Submit Zone"}
+        {isSubmitting
+          ? zoneToEdit
+            ? "Updating..."
+            : "Submitting..."
+          : zoneToEdit
+          ? "Update Zone"
+          : "Submit Zone"}
       </button>
     </Modal>
   );

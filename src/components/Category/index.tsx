@@ -72,6 +72,7 @@ const Category = () => {
           setIsModalOpen={setIsModalOpen}
           setIsSubcategoryModalOpen={setIsSubcategoryModalOpen} // Pass the new handler
           data={formattedCategories}
+          rawCategories={categories}
         />
         <AddCategoryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onCategoryAdded={onCategoryAdded} />
         <AddSubcategoryModal
