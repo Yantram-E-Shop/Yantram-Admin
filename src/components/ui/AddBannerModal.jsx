@@ -179,7 +179,7 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
       <input
         type="text"
         name="page"
-        placeholder="Page Name"
+        placeholder="Description"
         value={bannerData.page}
         onChange={handleInputChange}
         className="w-full mb-4 p-2 bg-gray-200 text-black rounded border border-gray-400"

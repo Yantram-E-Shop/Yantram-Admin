@@ -21,7 +21,7 @@ export const columns: ColumnDef<BannerColumn>[] = [
   },
   {
     accessorKey: "pageName",
-    header: "Page",
+    header: "Description",
   },
   {
     accessorKey: "createdAt",
