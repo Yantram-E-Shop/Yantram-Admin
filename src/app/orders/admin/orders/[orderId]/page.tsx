@@ -5,131 +5,235 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import Loader from "@/components/ui/loader";
 import { AuthContext } from "@/context/AuthContext";
+import { toast } from "react-hot-toast";
 
 const OrderDetails = () => {
-  const { orderId } = useParams(); // Get the orderId from the URL
-  const [order, setOrder] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const authContext = useContext(AuthContext);
-  const accessToken = authContext?.accessToken;
+    const { orderId } = useParams();
+    const [order, setOrder] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [updating, setUpdating] = useState(false);
+    const authContext = useContext(AuthContext);
+    const accessToken = authContext?.accessToken;
 
-  useEffect(() => {
-    const fetchOrderDetails = async () => {
-      try {
-        const response = await axios.get(
-          `/api/v1/orders/admin/orders/${orderId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
+    useEffect(() => {
+        const fetchOrderDetails = async () => {
+            try {
+                const response = await axios.get(
+                    `/api/v1/orders/admin/orders/${orderId}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }
+                );
+                setOrder(response.data.data);
+            } catch (error) {
+                console.error("Error fetching order details:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (orderId) fetchOrderDetails();
+    }, [orderId]);
+
+    const handleQuantityChange = (index: number, value: string) => {
+        const quantity = parseInt(value);
+        if (isNaN(quantity) || quantity < 1) return;
+
+        // Create a new copy of the order to ensure immutability
+        const newItems = [...order.items];
+        const item = newItems[index];
+
+        // Find the correct price based on the selected quantity
+        const selectedPrice =
+            item.product.sellingPrice
+                .filter(
+                    (priceOption: any) => quantity >= priceOption.minQuantity
+                )
+                .sort((a: any, b: any) => b.minQuantity - a.minQuantity)[0]
+                ?.pricePerUnit || item.product.originalPrice;
+
+        console.log("Selected price :", selectedPrice);
+        // Update the item quantity and total price
+        item.quantity = quantity;
+        item.totalPrice = selectedPrice * quantity;
+
+        // Recalculate the total price of the entire order
+        const newTotal = newItems.reduce(
+            (sum, item) => sum + item.totalPrice,
+            0
         );
 
-        console.log("Response:", response.data);
-        setOrder(response.data.data); // Store order data in state
-      } catch (error) {
-        console.error("Error fetching order details:", error);
-      } finally {
-        setLoading(false);
-      }
+        // Update the order state
+        setOrder((prevOrder: any) => ({
+            ...prevOrder,
+            items: newItems,
+            totalPrice: newTotal,
+        }));
     };
 
-    if (orderId) fetchOrderDetails();
-  }, [orderId]);
+    const handleUpdateOrder = async () => {
+        if (!order) return;
+        setUpdating(true);
+        try {
+            const payload = {
+                items: order.items.map((item: any) => ({
+                    product: item.product._id,
+                    quantity: item.quantity,
+                    totalPrice: item.totalPrice,
+                })),
+                totalPrice: order.totalPrice,
+            };
 
-  if (loading) return <Loader />;
-  if (!order) return <p className="text-red-500">Order not found.</p>;
+            const response = await axios.put(
+                `/api/v1/orders/update/${order._id}`,
+                payload,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
 
-  return (
-    <div className="p-6 rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-4">Order Details</h1>
+            toast.success("Order updated successfully");
+            setOrder(response.data.data);
+        } catch (error: any) {
+            console.error("Error updating order:", error);
+            toast.error("Failed to update order");
+        } finally {
+            setUpdating(false);
+        }
+    };
 
-      {/* Order Info */}
-      <p>
-        <strong>Order ID:</strong> {order._id}
-      </p>
-      <p>
-        <strong>Status:</strong> {order.status}
-      </p>
-      <p>
-        <strong>Order Date:</strong>{" "}
-        {new Date(order.createdAt).toLocaleString()}
-      </p>
-      <p>
-        <strong>Last Updated:</strong>{" "}
-        {new Date(order.updatedAt).toLocaleString()}
-      </p>
-        <p>
-        <strong>Payment Mode:</strong> {order.paymentInfo?.mode || "N/A"}
-      </p>
-      <p>
-        <strong>Shipping Partner:</strong> {order.shippingPartner || "N/A"}
-      </p>
-      <p>
-        <strong>Total Price:</strong> ${order.totalPrice}
-      </p>
+    if (loading) return <Loader />;
+    if (!order) return <p className="text-red-500">Order not found.</p>;
 
-      {/* Address Section */}
-      <h2 className="text-xl font-semibold mt-4">Shipping Address</h2>
-      {order.address ? (
-        <div className="border p-4 rounded-md -100">
-          <p>
-            <strong>Full Address:</strong> {order.address.fullAddress}
-          </p>
-          {order.address.landmark && (
+    return (
+        <div className="p-6 rounded-lg shadow-md">
+            <h1 className="text-2xl font-bold mb-4">Order Details</h1>
             <p>
-              <strong>Landmark:</strong> {order.address.landmark}
+                <strong>Order ID:</strong> {order._id}
             </p>
-          )}
-          <p>
-            <strong>Pincode:</strong> {order.address.pincode}
-          </p>
-          {order.address.district && (
             <p>
-              <strong>District:</strong> {order.address.district}
+                <strong>Status:</strong> {order.status}
             </p>
-          )}
-          {order.address.state && (
             <p>
-              <strong>State:</strong> {order.address.state}
+                <strong>Order Date:</strong>{" "}
+                {new Date(order.createdAt).toLocaleString()}
             </p>
-          )}
-          {order.address.phoneNumber && (
             <p>
-              <strong>Phone:</strong> {order.address.phoneNumber}
+                <strong>Last Updated:</strong>{" "}
+                {new Date(order.updatedAt).toLocaleString()}
             </p>
-          )}
-        </div>
-      ) : (
-        <p className="text-gray-500">No address available.</p>
-      )}
+            <p>
+                <strong>Payment Info:</strong>{" "}
+                {order.paymentInfo?.mode || "N/A"}
+            </p>
+            <p>
+                <strong>Shipping Partner:</strong>{" "}
+                {order.shippingPartner || "N/A"}
+            </p>
+            <p>
+                <strong>Total Price:</strong> ${order.totalPrice.toFixed(2)}
+            </p>
 
-      {/* Items Section */}
-      <h2 className="text-xl font-semibold mt-4">Items</h2>
-      {order.items && order.items.length > 0 ? (
-        <ul>
-          {order.items.map((item: any) => (
-            <li
-              key={item?.product?._id}
-              className="border p-4 mt-2 rounded-md "
+            <h2 className="text-xl font-semibold mt-4">Shipping Address</h2>
+            {order.address ? (
+                <div className="border p-4 rounded-md">
+                    <p>
+                        <strong>Full Address:</strong>{" "}
+                        {order.address.fullAddress}
+                    </p>
+                    {order.address.landmark && (
+                        <p>
+                            <strong>Landmark:</strong> {order.address.landmark}
+                        </p>
+                    )}
+                    <p>
+                        <strong>Pincode:</strong> {order.address.pincode}
+                    </p>
+                    {order.address.district && (
+                        <p>
+                            <strong>District:</strong> {order.address.district}
+                        </p>
+                    )}
+                    {order.address.state && (
+                        <p>
+                            <strong>State:</strong> {order.address.state}
+                        </p>
+                    )}
+                    {order.address.phoneNumber && (
+                        <p>
+                            <strong>Phone:</strong> {order.address.phoneNumber}
+                        </p>
+                    )}
+                </div>
+            ) : (
+                <p className="text-gray-500">No address available.</p>
+            )}
+
+            <h2 className="text-xl font-semibold mt-4">Items</h2>
+            {order.items?.length > 0 ? (
+                <ul>
+                    {order.items.map((item: any, index: number) => (
+                        <li
+                            key={item.product._id}
+                            className="border p-4 mt-2 rounded-md"
+                        >
+                            <p>
+                                <strong>Product:</strong> {item.product.title}
+                            </p>
+                            <p>
+                                <strong>Quantity:</strong>{" "}
+                                <input
+                                    type="number"
+                                    min={1}
+                                    value={item.quantity}
+                                    onChange={(e) =>
+                                        handleQuantityChange(
+                                            index,
+                                            e.target.value
+                                        )
+                                    }
+                                    className="border px-2 py-1 rounded w-16 bg-black text-white"
+                                />
+                            </p>
+                            <p>
+                                <strong>Price:</strong> $
+                                {(() => {
+                                    // Find the correct price for the current quantity
+                                    const price =
+                                        item.product.sellingPrice.find(
+                                            (priceOption: any) =>
+                                                item.quantity >=
+                                                priceOption.minQuantity
+                                        );
+
+                                    // If the price for the current quantity is found, use it; otherwise, fall back to originalPrice
+                                    const selectedPrice = price
+                                        ? price.pricePerUnit
+                                        : item.product.originalPrice;
+
+                                    return selectedPrice.toFixed(2);
+                                })()}
+                            </p>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p className="text-gray-500">No items found in this order.</p>
+            )}
+
+            <button
+                className="mt-6 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+                onClick={handleUpdateOrder}
+                disabled={updating}
             >
-              <p>
-                <strong>Product:</strong> {item?.product?.title}
-              </p>
-              <p>
-                <strong>Quantity:</strong> {item.quantity}
-              </p>
-              <p>
-                <strong>Price:</strong> ${item.totalPrice}
-              </p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="text-gray-500">No items found in this order.</p>
-      )}
-    </div>
-  );
+                {updating ? "Updating..." : "Update Order"}
+            </button>
+        </div>
+    );
 };
 
 export default OrderDetails;
