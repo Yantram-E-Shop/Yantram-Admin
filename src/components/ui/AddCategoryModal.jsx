@@ -182,7 +182,7 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit }) 
       <button
         onClick={handleSubmit}
         disabled={isSubmitting}
-        className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
+        className="w-full p-2 bg-blue-500 text-#00000 rounded hover:bg-blue-600 transition duration-200"
       >
         {isSubmitting ? "Submitting..." : categoryToEdit ? "Update Category" : "Add Category"}
       </button>

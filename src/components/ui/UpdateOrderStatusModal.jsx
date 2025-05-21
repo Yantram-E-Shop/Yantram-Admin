@@ -4,12 +4,13 @@ import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 import { BASE_URL } from "@/api/axios";
+import { toast } from "react-toastify";
 
 const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate }) => {
+  const [order, setOrder] = useState(null);
   const [orderData, setOrderData] = useState({ status: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState({ type: "", message: "" });
-  const [items, setItems] = useState([]);
   const [shippedQuantities, setShippedQuantities] = useState({});
   const [packageInfo, setPackageInfo] = useState({
     length: "",
@@ -30,15 +31,11 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
           },
         })
         .then((res) => {
-          const order = res.data.data;
-          console.log(order);
-          console.log("Fetched order:", order);
-console.log("Type of order.items:", typeof order.items);
-console.log("Is Array:", Array.isArray(order.items));
+          const fetchedOrder = res.data.data;
+          setOrder(fetchedOrder);
 
-          setItems(order.items || []);
           const defaultShipped = {};
-          order.items.forEach((item) => {
+          fetchedOrder.items.forEach((item) => {
             defaultShipped[item._id] = item.quantity;
           });
           setShippedQuantities(defaultShipped);
@@ -61,6 +58,31 @@ console.log("Is Array:", Array.isArray(order.items));
     }));
   };
 
+  const handleQuantityChange = (index, value) => {
+    const quantity = parseInt(value);
+    if (isNaN(quantity) || quantity < 1) return;
+
+    const updatedItems = [...order.items];
+    const item = updatedItems[index];
+
+    const selectedPrice =
+      item.product.sellingPrice
+        ?.filter((p) => quantity >= p.minQuantity)
+        .sort((a, b) => b.minQuantity - a.minQuantity)[0]?.pricePerUnit ||
+      item.product.originalPrice;
+
+    item.quantity = quantity;
+    item.totalPrice = selectedPrice * quantity;
+
+    const updatedTotal = updatedItems.reduce((sum, i) => sum + i.totalPrice, 0);
+
+    setOrder((prev) => ({
+      ...prev,
+      items: updatedItems,
+      totalPrice: updatedTotal,
+    }));
+  };
+
   const handlePackageInfoChange = (e) => {
     const { name, value } = e.target;
     setPackageInfo((prev) => ({
@@ -79,31 +101,70 @@ console.log("Is Array:", Array.isArray(order.items));
       return;
     }
 
-    const payload = {
-      status: orderData.status,
-    };
-
-    if (orderData.status === "Confirmed") {
-      payload.shippedQuantities = shippedQuantities;
-    }
-
-    if (orderData.status === "Shipping") {
-      payload.packageInfo = packageInfo;
-    }
+    const payload = { status: orderData.status };
 
     try {
-      const response = await axios.put(`${BASE_URL}/orders/admin/orders/${orderId}`, payload, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      if (orderData.status === "Confirmed") {
+        if (!order) return;
 
-      setFeedback({
-        type: "success",
-        message: "Order status updated successfully!",
-      });
-      onOrderStatusupdate(response.data.data);
+        const confirmedPayload = {
+          items: order.items.map((item) => ({
+            product: item.product._id,
+            quantity: item.quantity,
+            totalPrice: item.totalPrice,
+          })),
+          totalPrice: order.totalPrice,
+        };
+
+        const response = await axios.put(
+          `${BASE_URL}/orders/update/${order._id}`,
+          confirmedPayload ,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+
+        toast.success("Order confirmed and updated successfully.");
+        setOrder(response.data.data);
+        onOrderStatusupdate(response.data.data);
+      } 
+      else 
+      {
+        if (orderData.status === "Shipping") {
+          payload.packageInfo = packageInfo;
+        }
+
+        const response = await axios.put(
+          `${BASE_URL}/orders/ship/${orderId}`,
+          payload,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        setFeedback({
+          type: "success",
+          message: "Order status updated successfully!",
+        });
+
+        onOrderStatusupdate(response.data.data);
+      }
+
+      const response = await axios.put(
+        `${BASE_URL}/orders/${order._id}`,
+        payload ,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
       onClose();
       setOrderData({ status: "" });
       setPackageInfo({ length: "", breadth: "", height: "", weight: "" });
@@ -145,6 +206,13 @@ console.log("Is Array:", Array.isArray(order.items));
     "Delivered",
   ];
 
+  const ShipmentPartner =
+  [
+    "Delhivery",
+    "BlueDart",
+    "ShipRocket"
+  ];
+
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} style={modalStyles}>
       {feedback.message && (
@@ -159,7 +227,6 @@ console.log("Is Array:", Array.isArray(order.items));
 
       <h2 className="text-black text-xl mb-4">Update Order Status</h2>
 
-      {/* Order Status Dropdown */}
       <select
         name="status"
         value={orderData.status}
@@ -174,36 +241,41 @@ console.log("Is Array:", Array.isArray(order.items));
         ))}
       </select>
 
-      {/* Shipped Quantity Inputs */}
-      {orderData.status === "Confirmed" && (
+      {/* Confirmed Status: Edit Quantities */}
+      {orderData.status === "Confirmed" && order?.items && (
         <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">Shipped Quantities</h3>
+          <h3 className="text-lg font-semibold mb-2">Edit Item Quantities</h3>
           <table className="w-full text-sm border">
             <thead>
               <tr className="bg-gray-200">
                 <th className="p-2 border">Product</th>
-                <th className="p-2 border">Ordered Qty</th>
-                <th className="p-2 border">Shipped Qty</th>
+                <th className="p-2 border">Price/Unit</th>
+                <th className="p-2 border">Quantity</th>
+                <th className="p-2 border">Total</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
+              {order.items.map((item, index) => (
                 <tr key={item._id}>
+                  <td className="p-2 border">{item.product?.title}</td>
                   <td className="p-2 border">
-                    {item.product?.title || "Product name missing"}
+                    ₹
+                    {
+                      item.product?.sellingPrice
+                        ?.sort((a, b) => b.minQuantity - a.minQuantity)[0]
+                        ?.pricePerUnit ?? item.product?.originalPrice
+                    }
                   </td>
-                  <td className="p-2 border">{item.quantity}</td>
                   <td className="p-2 border">
                     <input
                       type="number"
-                      min={0}
+                      min={1}
                       className="w-full p-1 border rounded"
-                      value={shippedQuantities[item._id] || ""}
-                      onChange={(e) =>
-                        handleShippedQtyChange(item._id, e.target.value)
-                      }
+                      value={item.quantity}
+                      onChange={(e) => handleQuantityChange(index, e.target.value)}
                     />
                   </td>
+                  <td className="p-2 border">₹{item.totalPrice}</td>
                 </tr>
               ))}
             </tbody>
@@ -211,16 +283,31 @@ console.log("Is Array:", Array.isArray(order.items));
         </div>
       )}
 
-      {/* Package Info Fields */}
+      {/* Shipping Status: Package Info */}
       {orderData.status === "Shipping" && (
         <div className="mb-4">
           <h3 className="text-lg font-semibold mb-2">Package Info</h3>
+          {/* ✅ Shipping Partner Dropdown */}
+          <div className="mt-4">
+            <label className="block text-sm mb-1">Shipping Partner</label>
+            <select
+              name="shippingPartner"
+              value={packageInfo.shippingPartner}
+              onChange={handlePackageInfoChange}
+              className="w-full p-2 bg-gray-100 border rounded"
+            >
+              <option value="">Select Partner</option>
+              {ShipmentPartner.map((partner) => (
+                <option key={partner} value={partner}>
+                  {partner}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="grid grid-cols-2 gap-4">
             {["length", "breadth", "height", "weight"].map((field) => (
               <div key={field}>
-                <label className="block text-sm mb-1 capitalize">
-                  {field}
-                </label>
+                <label className="block text-sm mb-1 capitalize">{field}</label>
                 <input
                   type="number"
                   name={field}
@@ -237,7 +324,7 @@ console.log("Is Array:", Array.isArray(order.items));
       <button
         onClick={handleSubmit}
         disabled={isSubmitting}
-        className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
+        className="w-full p-2 bg-blue-500 text-black rounded hover:bg-blue-600 transition duration-200"
       >
         {isSubmitting ? "Submitting..." : "Submit Status"}
       </button>
