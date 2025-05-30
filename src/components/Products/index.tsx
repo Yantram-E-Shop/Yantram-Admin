@@ -15,9 +15,12 @@ const Products = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories ] = useState(null);
+  const [subcategories, setSubCategories ] = useState(null);
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -30,7 +33,7 @@ const Products = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${BASE_URL}/products?page=${page}`, {
+        const response = await axios.get(`${BASE_URL}/products?page=${page}&searchQuery=${searchQuery}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -46,14 +49,69 @@ const Products = () => {
       }
     };
 
-    fetchProducts();
-  }, [accessToken, page]);
+    const fetchCategories = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`${BASE_URL}/category`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+  
+        const data = response.data.data;
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    const fetchSubCategories = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`${BASE_URL}/sub-category`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+  
+        const data = response.data.data;
+        setSubCategories(data);
+      } catch (error) {
+        console.error("Error fetching sub categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+    fetchCategories();
+    fetchSubCategories();
+  }, [accessToken, page, searchQuery]);
+
+  const categoryMap = React.useMemo(() => {
+    const map: Record<string, string> = {};
+    categories?.forEach((cat: any) => {
+      map[cat._id] = cat.name;
+    });
+    return map;
+  }, [categories]);
+  
+  const subcategoryMap = React.useMemo(() => {
+    const map: Record<string, string> = {};
+    subcategories?.forEach((sub: any) => {
+      map[sub._id] = sub.name;
+    });
+    return map;
+  }, [subcategories]);
+  
   const formattedProducts = products.map((item) => ({
-    id: item._id,
     title: item.title,
     originalPrice: item.originalPrice,
-    category: item.category,
+    category: categoryMap[item.category] || "Unknown",
+    subCategory: subcategoryMap[item.subCategory] || "Unknown",
+    sellingPrice:item.sellingPrice || [],
     attributes: item.attributes.map(attr => attr.value).join(', ') || "N/A",
     soldQuantity: item.soldQuantity,
     createdAt: format(new Date(item.createdAt), "MMMM do, yyyy"),
@@ -75,6 +133,8 @@ const Products = () => {
           data={formattedProducts}
           page={page}
           setPage={setPage}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
           totalPages={totalPages}
           totalProducts={totalProducts}
         />

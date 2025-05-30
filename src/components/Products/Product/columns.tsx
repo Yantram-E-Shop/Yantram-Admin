@@ -4,10 +4,11 @@ import { ColumnDef } from "@tanstack/react-table";
 import { CellAction } from "./cell-action";
 
 export type ProductColumn = {
-  _id: string;
   title: string;
   originalPrice: string | number;
+  sellingPrice: { minQuantity: number; pricePerUnit: number }[]; 
   category: string;
+  subCategory: string;
   soldQuantity: string | number;
   createdAt: string;
   availableQuantity: string | number;
@@ -17,17 +18,35 @@ export type ProductColumn = {
 
 export const columns: ColumnDef<ProductColumn>[] = [
   {
-    accessorKey: "id",
-    header: "ID",
-  },
-  {
     accessorKey: "title",
     header: "Name",
   },
   {
     accessorKey: "originalPrice",
-    header: "Price",
+    header: "MRP.",
   },
+  {
+    accessorKey: "sellingPrice",
+    header: "Selling Prices",
+    cell: ({ row }) => {
+      const prices = row.original.sellingPrice;
+      if (!prices || prices.length === 0) return "N/A";
+  
+      const validPrices = prices.filter(p => p.minQuantity > 0);
+  
+      if (validPrices.length === 0) return "N/A";
+  
+      return (
+        <div className="space-y-1">
+          {validPrices.map((p, idx) => (
+            <div key={idx}>
+              Min: {p.minQuantity}, ₹{p.pricePerUnit}/unit
+            </div>
+          ))}
+        </div>
+      );
+    },
+  },  
   {
     accessorKey: "isAvailable",
     header: "Available",
@@ -43,6 +62,10 @@ export const columns: ColumnDef<ProductColumn>[] = [
   {
     accessorKey: "category",
     header: "Category",
+  },
+  {
+    accessorKey: "subCategory",
+    header: "Sub-Category",
   },
   {
     accessorKey: "attributes",
