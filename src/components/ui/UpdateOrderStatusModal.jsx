@@ -13,6 +13,7 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
   const [feedback, setFeedback] = useState({ type: "", message: "" });
   const [shippedQuantities, setShippedQuantities] = useState({});
   const [packageInfo, setPackageInfo] = useState({
+    waybill:"",
     length: "",
     breadth: "",
     height: "",
@@ -167,7 +168,7 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
       );
       onClose();
       setOrderData({ status: "" });
-      setPackageInfo({ length: "", breadth: "", height: "", weight: "" });
+      setPackageInfo({ waybill:"", length: "", breadth: "", height: "", weight: "" });
     } catch (error) {
       console.error("Error updating order status:", error);
       setFeedback({
@@ -305,11 +306,11 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            {["length", "breadth", "height", "weight"].map((field) => (
+            {["waybill","length", "breadth", "height", "weight"].map((field) => (
               <div key={field}>
                 <label className="block text-sm mb-1 capitalize">{field}</label>
                 <input
-                  type="number"
+                  type="string"
                   name={field}
                   className="w-full p-2 border rounded"
                   value={packageInfo[field]}

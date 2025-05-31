@@ -47,12 +47,12 @@ const OrderDetails = () => {
 
         // Find the correct price based on the selected quantity
         const selectedPrice =
-            item.product.sellingPrice
+            item.product?.sellingPrice
                 .filter(
                     (priceOption: any) => quantity >= priceOption.minQuantity
                 )
                 .sort((a: any, b: any) => b.minQuantity - a.minQuantity)[0]
-                ?.pricePerUnit || item.product.originalPrice;
+                ?.pricePerUnit || item.product?.originalPrice;
 
         console.log("Selected price :", selectedPrice);
         // Update the item quantity and total price
@@ -79,7 +79,7 @@ const OrderDetails = () => {
         try {
             const payload = {
                 items: order.items.map((item: any) => ({
-                    product: item.product._id,
+                    product: item.product?._id,
                     quantity: item.quantity,
                     totalPrice: item.totalPrice,
                 })),
@@ -178,11 +178,11 @@ const OrderDetails = () => {
                 <ul>
                     {order.items.map((item: any, index: number) => (
                         <li
-                            key={item.product._id}
+                            key={item.product?._id}
                             className="border p-4 mt-2 rounded-md"
                         >
                             <p>
-                                <strong>Product:</strong> {item.product.title}
+                                <strong>Product:</strong> {item?.product?.title}
                             </p>
                             <p>
                                 <strong>Quantity:</strong>{" "}
@@ -204,7 +204,7 @@ const OrderDetails = () => {
                                 {(() => {
                                     // Find the correct price for the current quantity
                                     const price =
-                                        item.product.sellingPrice.find(
+                                        item?.product?.sellingPrice.find(
                                             (priceOption: any) =>
                                                 item.quantity >=
                                                 priceOption.minQuantity
@@ -212,10 +212,10 @@ const OrderDetails = () => {
 
                                     // If the price for the current quantity is found, use it; otherwise, fall back to originalPrice
                                     const selectedPrice = price
-                                        ? price.pricePerUnit
-                                        : item.product.originalPrice;
+                                        ? price?.pricePerUnit
+                                        : item.product?.originalPrice;
 
-                                    return selectedPrice.toFixed(2);
+                                    return selectedPrice?.toFixed(2);
                                 })()}
                             </p>
                         </li>
