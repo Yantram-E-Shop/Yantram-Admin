@@ -132,22 +132,20 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
         setOrder(response.data.data);
         onOrderStatusupdate(response.data.data);
       } 
-      else 
+      else if (orderData.status === "Shipping") 
       {
-        if (orderData.status === "Shipping") {
           payload.packageInfo = packageInfo;
-        }
 
-        const response = await axios.put(
-          `${BASE_URL}/orders/ship/${orderId}`,
-          payload,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
+          const response = await axios.put(
+            `${BASE_URL}/orders/ship/${orderId}`,
+            payload,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
 
         setFeedback({
           type: "success",
