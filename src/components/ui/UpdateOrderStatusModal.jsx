@@ -243,10 +243,34 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
       {/* Confirmed Status: Edit Quantities */}
       {orderData.status === "Confirmed" && order?.items && (
         <div className="mb-4">
+  <div className="mb-4">
+  <h3 className="text-lg font-semibold mb-2">Payment Info</h3>
+  <div className="flex items-start justify-between gap-4 text-sm">
+    <div className="flex-1 space-y-1">
+      <div>
+        <span className="font-semibold">Payment Method:</span>{" "}
+        {order?.paymentInfo?.mode || "N/A"}
+      </div>
+      <div>
+        <span className="font-semibold">Transaction Ref:</span>{" "}
+        {order?.paymentInfo?.transactionId || "N/A"}
+      </div>
+    </div>
+    {order?.paymentInfo?.transactionimageUrl && (
+      <img
+        src={order.paymentInfo.transactionimageUrl}
+        alt="Payment Screenshot"
+        className="w-25 h-25 border rounded object-cover"
+      />
+    )}
+  </div>
+</div>
+
           <h3 className="text-lg font-semibold mb-2">Edit Item Quantities</h3>
           <table className="w-full text-sm border">
             <thead>
               <tr className="bg-gray-200">
+                <th className="p-2 border">SKU</th>
                 <th className="p-2 border">Product</th>
                 <th className="p-2 border">Price/Unit</th>
                 <th className="p-2 border">Quantity</th>
@@ -256,6 +280,7 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
             <tbody>
               {order.items.map((item, index) => (
                 <tr key={item._id}>
+                  <td className="p-2 border">{item.product?.SKU}</td>
                   <td className="p-2 border">{item.product?.title}</td>
                   <td className="p-2 border">
                     ₹

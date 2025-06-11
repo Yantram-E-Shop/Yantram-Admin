@@ -126,17 +126,43 @@ const OrderDetails = () => {
                 <strong>Last Updated:</strong>{" "}
                 {new Date(order.updatedAt).toLocaleString()}
             </p>
-            <p>
-                <strong>Payment Info:</strong>{" "}
-                {order.paymentInfo?.mode || "N/A"}
-            </p>
+           
             <p>
                 <strong>Shipping Partner:</strong>{" "}
                 {order.shippingPartner || "N/A"}
             </p>
-            <p>
-                <strong>Total Price:</strong> ${order.totalPrice.toFixed(2)}
+            
+
+<h2 className="text-xl font-semibold mt-4">Payment Info</h2>
+            {order.paymentInfo ? (
+                <div className="border p-4 rounded-md">
+             <p>
+                <strong>Payment Mode:</strong>{" "}
+                {order.paymentInfo?.mode || "N/A"}
             </p>
+            <p>
+                <strong>Order Value:</strong> ₹{order.paymentInfo.amount.toFixed(2)}
+            </p>
+            <p>
+                <strong>Shipping Cost:</strong> ₹{order.paymentInfo.shippingCost.toFixed(2)}
+            </p>
+            <p>
+                <strong>Total Order Cost:</strong> ₹{order.paymentInfo.totalamount.toFixed(2)}
+            </p>
+            <p>
+                <strong>Transaction Id:</strong> {order.paymentInfo.transactionId}
+            </p>
+            {order?.paymentInfo?.transactionimageUrl && (
+      <img
+        src={order.paymentInfo.transactionimageUrl}
+        alt="Payment Screenshot"
+        className="w-25 h-25 border rounded object-cover"
+      />
+    )}
+                </div>
+            ) : (
+                <p className="text-gray-500">No Payment Info.</p>
+            )}
 
             <h2 className="text-xl font-semibold mt-4">Shipping Address</h2>
             {order.address ? (
@@ -181,6 +207,9 @@ const OrderDetails = () => {
                             key={item.product?._id}
                             className="border p-4 mt-2 rounded-md"
                         >
+                            <p>
+                                <strong>Product SKU:</strong> {item?.product?.SKU}
+                            </p>
                             <p>
                                 <strong>Product:</strong> {item?.product?.title}
                             </p>

@@ -8,7 +8,12 @@ import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { ApiList } from "@/components/ui/api-list";
 import { columns, OrderColumn } from "./columns";
-import React from "react";
+import { AuthContext } from "@/context/AuthContext";
+import React, { useContext } from "react";
+
+import * as XLSX from "xlsx";
+import axios from "axios";
+import { format } from "date-fns";
 
 interface OrdersClientProps {
   isModalOpen: boolean;
@@ -20,21 +25,83 @@ interface OrdersClientProps {
   totalOrders: number;
 }
 
-export const OrdersClient: React.FC<OrdersClientProps> = ({ isModalOpen, setIsModalOpen, data, page, setPage, totalPages, totalOrders }) => {
+export const OrdersClient: React.FC<OrdersClientProps> = ({
+  isModalOpen,
+  setIsModalOpen,
+  data,
+  page,
+  setPage,
+  totalPages,
+  totalOrders
+}) => {
   const params = useParams();
   const router = useRouter();
+  const authContext = useContext(AuthContext);
+  const accessToken = authContext?.accessToken;
+
+  const handleExportToExcel = async () => {
+    if (!data || data.length === 0) {
+      alert("No data to export.");
+      return;
+    }
+
+    try {
+      const detailedOrders = [];
+
+      for (const order of data) {
+        const res = await axios.get(`/api/v1/orders/admin/orders/${order.id}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const o = res.data?.data;
+
+        detailedOrders.push({
+          "Order ID": o.orderID,
+          "Status": o.status,
+          "Total Price": o.totalPrice,
+          "Payment Method": o.paymentInfo?.mode || "N/A",
+          "Created At": format(new Date(o.createdAt), "yyyy-MM-dd HH:mm"),
+          "Customer Address": `${o.address?.fullAddress}, ${o.address?.district}, ${o.address?.state}, ${o.address?.phoneNumber}`,
+          "Products": o.items?.map(p =>
+            `${p.product?.title || "Unknown"} x${p.quantity}`
+          ).join("\n"),
+        });
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(detailedOrders);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+
+      XLSX.writeFile(workbook, "detailed_orders.xlsx");
+
+    } catch (err) {
+      console.error("Export failed", err);
+      alert("Failed to export orders. See console for details.");
+    }
+  };
 
   return (
     <>
       <div className="flex items-center justify-between">
         <Heading title={`Orders (${totalOrders})`} description="Manage Orders for your store" />
-        <Button onClick={() => { setIsModalOpen(true) }}>
-              <Plus className="w-4 h-4 mr-2" /> Update MinOrder Value
-        </Button>
-       
+
+        <div className="flex items-center gap-2">
+          <Button onClick={handleExportToExcel}>
+            Export to Excel
+          </Button>
+
+          <Button onClick={() => setIsModalOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" /> Update MinOrder Value
+          </Button>
+        </div>
       </div>
+
       <Separator />
+
       <DataTable searchKey="id" columns={columns} data={data} />
+
       <div className="flex items-center justify-between py-4 space-x-2">
         <Button variant="outline" size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
           Previous
@@ -46,6 +113,7 @@ export const OrdersClient: React.FC<OrdersClientProps> = ({ isModalOpen, setIsMo
           Next
         </Button>
       </div>
+
       <Heading title="API" description="API Calls for Orders" />
       <Separator />
       <ApiList entityName="orders" entityIdName="orderId" />
