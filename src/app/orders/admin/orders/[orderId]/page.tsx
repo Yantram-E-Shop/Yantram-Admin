@@ -229,7 +229,7 @@ const OrderDetails = () => {
                                 />
                             </p>
                             <p>
-                                <strong>Price:</strong> $
+                                <strong>Price:</strong> ₹
                                 {(() => {
                                     // Find the correct price for the current quantity
                                     const price =

@@ -39,48 +39,55 @@ export const OrdersClient: React.FC<OrdersClientProps> = ({
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
 
-  const handleExportToExcel = async () => {
-    if (!data || data.length === 0) {
-      alert("No data to export.");
-      return;
-    }
+const handleExportToExcel = async () => {
+  if (!data || data.length === 0) {
+    alert("No data to export.");
+    return;
+  }
 
-    try {
-      const detailedOrders = [];
+  try {
+    const detailedOrders = [];
+    for (const order of data) {
+      const res = await axios.get(`/api/v1/orders/admin/orders/${order.id}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
-      for (const order of data) {
-        const res = await axios.get(`/api/v1/orders/admin/orders/${order.id}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        const o = res.data?.data;
-
+      const o = res.data?.data;
+      o.items.forEach((item) => {
         detailedOrders.push({
+          "Date": format(new Date(o.createdAt), "yyyy-MM-dd"),
           "Order ID": o.orderID,
           "Status": o.status,
-          "Total Price": o.totalPrice,
+          "Total Order Cost": o.paymentInfo?.totalamount,
+          "Shipping Cost": o.paymentInfo?.shippingCost,
+          "Order Cost": o.paymentInfo?.amount,
           "Payment Method": o.paymentInfo?.mode || "N/A",
-          "Created At": format(new Date(o.createdAt), "yyyy-MM-dd HH:mm"),
-          "Customer Address": `${o.address?.fullAddress}, ${o.address?.district}, ${o.address?.state}, ${o.address?.phoneNumber}`,
-          "Products": o.items?.map(p =>
-            `${p.product?.title || "Unknown"} x${p.quantity}`
-          ).join("\n"),
+          "Product SKU": item.product?.SKU,
+          "Product": item.product?.title,
+          "Product Price/Unit": item.product?.sellingPrice[0].pricePerUnit,
+          "Quantity": item.quantity,
+          "Customer Name": o.address?.user?.fullName,
+          "Customer Address": o.address?.fullAddress,
+          "Customer City": o.address?.district,
+          "Customer State": o.address?.state,
+          "Customer PhoneNumber": o.address?.phoneNumber,
         });
-      }
-
-      const worksheet = XLSX.utils.json_to_sheet(detailedOrders);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
-
-      XLSX.writeFile(workbook, "detailed_orders.xlsx");
-
-    } catch (err) {
-      console.error("Export failed", err);
-      alert("Failed to export orders. See console for details.");
+      });
     }
-  };
+
+    // ✅ Create workbook only after collecting all rows
+    const worksheet = XLSX.utils.json_to_sheet(detailedOrders);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+    XLSX.writeFile(workbook, "detailed_orders.xlsx");
+  } catch (err) {
+    console.error("Export failed", err);
+    alert("Failed to export orders. See console for details.");
+  }
+};
+
 
   return (
     <>
