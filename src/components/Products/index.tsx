@@ -108,6 +108,7 @@ const Products = () => {
   
   const formattedProducts = products.map((item) => ({
     id:item._id,
+    SKU:item.SKU,
     title: item.title,
     originalPrice: item.originalPrice,
     category: categoryMap[item.category] || "Unknown",
