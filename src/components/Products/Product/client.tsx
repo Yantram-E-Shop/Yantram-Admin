@@ -8,7 +8,7 @@ import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { ApiList } from "@/components/ui/api-list";
 import { ProductColumn, columns } from "./columns";
-import React, { useState,useContext } from "react";
+import React, { useState,useContext,useRef  } from "react";
 import * as XLSX from "xlsx";
 import { AuthContext } from "@/context/AuthContext";
 import axios from "axios";
@@ -23,6 +23,23 @@ interface ProductsClientProps {
   setSearchQuery: (searchQuery: string) => void;
   totalPages: number;
   totalProducts: number;
+}
+
+interface ProductUpdateRow {
+  ID: string;
+  SKU: string;
+  Title: string;
+  CategoryId: string;
+  SubcategoryId: string;
+  "Original Price": number;
+  "Available Quantity": number;
+  Status: string;
+  Qty1: number;
+  Price1: number;
+  Qty2: number;
+  Price2: number;
+  Qty3: number;
+  Price3: number;
 }
 
 export const ProductsClient: React.FC<ProductsClientProps> = ({
@@ -42,6 +59,12 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
   const [localSearch, setLocalSearch] = useState(searchQuery);
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
+  // Inside the component
+const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+const triggerFileSelect = () => {
+  fileInputRef.current?.click();
+};
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -95,12 +118,13 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
 
     const formatted = allProducts.map((product: any) => ({
       "ID":product._id,
+      "SKU":product.SKU,
       "Title": product.title,
       "CategoryId": product.category || "N/A",
       "CategoryName": categoryMap[product.category],
       "SubcategoryId": product.subCategory || "N/A",
       "Sub-CategoryName": subCategoryMap[product.subCategory],
-      "Price": product.originalPrice,
+      "Original Price": product.originalPrice,
       "Available Quantity": product.availableQuantity,
       "Status": product.isAvailable ? "Active" : "Inactive",
          // Flattened Selling Prices
@@ -124,6 +148,61 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
   }
 };
 
+const handleProductUpdateFromExcel = async (file: File) => {
+  try {
+    const data = await file.arrayBuffer();
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const json: ProductUpdateRow[] = XLSX.utils.sheet_to_json(sheet);
+
+    for (const row of json) {
+      try {
+        // Step 2: Get product details by ID
+        const productRes = await axios.get(`/api/v1/products/${row.ID}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        const product = productRes.data.data;
+
+        // Step 3: Update fields
+        const updatedProduct = {
+  ...product, // Start with existing product fields
+  title: row.Title,
+  SKU: row.SKU,
+  category: row.CategoryId,           // Match how you're exporting
+  subCategory: row.SubcategoryId,     // Correct the field name
+  originalPrice: Number(row["Original Price"]),
+  availableQuantity: Number(row["Available Quantity"]),
+  isAvailable: row.Status === "Active", // Convert string to boolean
+  sellingPrice: [
+    { minQuantity: row.Qty1, pricePerUnit: row.Price1 },
+    { minQuantity: row.Qty2, pricePerUnit: row.Price2 },
+    { minQuantity: row.Qty3, pricePerUnit: row.Price3 },
+  ].filter(e => e.minQuantity && e.pricePerUnit),
+        };
+
+        // Step 4: Call update API
+        const response = await axios.put(
+                `/api/v1/products/${row.ID}`,
+                { content: updatedProduct },
+                {
+                  headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                  },
+                }
+              );
+
+        console.log(`Updated product ${row.ID}`);
+      } catch (err) {
+        console.error(`Error updating product ${row.ID}:`, err);
+      }
+    }
+    alert("All products updated successfully.");
+  } catch (error) {
+    console.error("Failed to process Excel file", error);
+    alert("Something went wrong while processing Excel.");
+  }
+};
 
   return (
     <>
@@ -133,13 +212,34 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
           description="Manage products for your store"
         />
         <div className="flex items-center gap-2">
-          <Button onClick={handleExportToExcel}>
-            Export to Excel
-          </Button>
-          <Button onClick={() => setIsModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" /> Add New
-          </Button>
-        </div>
+  <Button onClick={handleExportToExcel}>
+    Export to Excel
+  </Button>
+
+  <Button variant="outline" onClick={triggerFileSelect}>
+    Update from Excel
+  </Button>
+
+  <input
+    type="file"
+    accept=".xlsx, .xls"
+    ref={fileInputRef}
+    style={{ display: "none" }}
+    onChange={(e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        handleProductUpdateFromExcel(file);
+        e.target.value = ""; // Allow re-uploading same file if needed
+      }
+    }}
+  />
+
+  <Button onClick={() => setIsModalOpen(true)}>
+    <Plus className="w-4 h-4 mr-2" /> Add New
+  </Button>
+</div>
+
+
       </div>
       <Separator />
 

@@ -87,6 +87,29 @@ export function DataTable<TData, TValue>({ columns, data, searchKey }: DataTable
           Next
         </Button>
       </div>
+      <div className="flex items-center justify-between py-2">
+  <div className="text-sm text-muted-foreground">
+    Page {table.getState().pagination.pageIndex + 1} of{" "}
+    {table.getPageCount()}
+  </div>
+  <div className="flex items-center space-x-2">
+    <span className="text-sm">Rows per page:</span>
+    <select
+      value={table.getState().pagination.pageSize}
+      onChange={(e) => {
+        table.setPageSize(Number(e.target.value));
+      }}
+      className="border rounded px-2 py-1 text-sm"
+    >
+      {[10, 20, 30, 50, 100].map((pageSize) => (
+        <option key={pageSize} value={pageSize}>
+          {pageSize}
+        </option>
+      ))}
+    </select>
+  </div>
+</div>
+
     </div>
   );
 }
