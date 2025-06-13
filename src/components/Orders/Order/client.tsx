@@ -107,7 +107,7 @@ const handleExportToExcel = async () => {
 
       <Separator />
 
-      <DataTable searchKey="id" columns={columns} data={data} />
+      <DataTable searchKey="orderId" columns={columns} data={data} />
 
       <div className="flex items-center justify-between py-4 space-x-2">
         <Button variant="outline" size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>

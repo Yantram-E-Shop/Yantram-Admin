@@ -244,7 +244,7 @@ const handleProductUpdateFromExcel = async (file: File) => {
       <Separator />
 
       {/* 🔍 Search Input */}
-      <div className="mt-4 mb-2">
+      {/* <div className="mt-4 mb-2">
         <input
           type="text"
           placeholder="Search products..."
@@ -257,10 +257,9 @@ const handleProductUpdateFromExcel = async (file: File) => {
             Enter at least 3 characters to search.
           </p>
         )}
-      </div>
+      </div> */}
 
       <DataTable searchKey="title" columns={columns} data={data} />
-
       <div className="flex items-center justify-between py-4 space-x-2">
         <Button
           variant="outline"

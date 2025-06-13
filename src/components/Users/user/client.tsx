@@ -31,7 +31,7 @@ export const UsersClient: React.FC<UsersClientProps> = ({ data, page, setPage, t
         </Button>
       </div>
       <Separator />
-      <DataTable searchKey="id" columns={columns} data={data} />
+      <DataTable searchKey="fullName" columns={columns} data={data} />
       <div className="flex items-center justify-between py-4 space-x-2">
         <Button variant="outline" size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
           Previous

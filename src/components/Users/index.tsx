@@ -19,7 +19,7 @@ const Users = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`/api/v1/user?page=${page}`, {
+        const response = await axios.get(`/api/v1/user?page=${page}&limit=10000`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
