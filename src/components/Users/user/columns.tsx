@@ -32,10 +32,6 @@ export const columns: ColumnDef<any>[] = [
     header: "Role",
   },
   {
-    accessorKey: "fcmToken",
-    header: "FCM Token",
-  },
-  {
     accessorKey: "numberVerified",
     header: "Number Verified",
   },
