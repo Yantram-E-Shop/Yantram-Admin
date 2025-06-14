@@ -60,23 +60,24 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
   // Inside the component
-const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRefBulk = useRef<HTMLInputElement | null>(null);
 
 const triggerFileSelect = () => {
   fileInputRef.current?.click();
 };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setLocalSearch(value);
+const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setLocalSearch(value);
 
-    if (value.length >= 3 || value.length === 0) {
-      setSearchQuery(value);
-      setPage(1); // Reset to first page when new search is triggered
-    }
-  };
+  if (value.length >= 3 || value.length === 0) {
+    setSearchQuery(value);
+    setPage(1); // Reset to first page when new search is triggered
+  }
+};
 
-  const handleExportToExcel = async () => {
+const handleExportToExcel = async () => {
   try {
         const res = await axios.get(`api/v1/products?limit=100000&searchQuery=${searchQuery}`, {
       headers: {
@@ -145,6 +146,120 @@ const triggerFileSelect = () => {
   } catch (err) {
     console.error("Export failed", err);
     alert("Failed to export all products.");
+  }
+};
+
+const handleBulkProductCreateFromExcel = async (file: File) => {
+  try {
+    const data = await file.arrayBuffer();
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json(sheet);
+
+    // Step 1: Query all mappings once
+    const [resCat, resSubCat, resAttr] = await Promise.all([
+      axios.get(`/api/v1/category`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+      axios.get(`/api/v1/sub-category`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+      axios.get(`/api/v1/attributes`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+    ]);
+
+    const categoryMap: Record<string, string> = {};
+    resCat.data.data.forEach((cat: any) => {
+      categoryMap[cat.name.trim().toLowerCase()] = cat._id;
+    });
+
+    const subCategoryMap: Record<string, string> = {};
+    resSubCat.data.data.forEach((sub: any) => {
+      subCategoryMap[sub.name.trim().toLowerCase()] = sub._id;
+    });
+
+    const attributeMap: Record<string, string> = {};
+    resAttr.data.data.forEach((attr: any) => {
+      attributeMap[attr.name.trim().toLowerCase()] = attr._id;
+    });
+
+    console.log(subCategoryMap);
+
+
+    // Step 2: Process each row
+    for (const row of json) {
+      try {
+        console.log("Subctaegory Name",row.SubCategoryName);
+        console.log(subCategoryMap[(row.SubCategoryName || "").trim().toLowerCase()]);
+        const attributes: { attribute: string; value: string }[] = [];
+
+        if (row.Attributes) {
+          const attrPairs = (row.Attributes as string).split(";");
+          for (const pair of attrPairs) {
+            const [key, value] = pair.split(":");
+            if (key && value) {
+              const attrId = attributeMap[key.trim().toLowerCase()];
+              if (attrId) {
+                attributes.push({ attribute: attrId, value: value.trim() });
+              } else {
+                console.warn(`Attribute "${key}" not found in system.`);
+              }
+            }
+          }
+        }
+
+        const productData = {
+          title: row.Title,
+          description: row.Description,
+          category: categoryMap[(row.CategoryName || "").trim().toLowerCase()],
+          subCategory: subCategoryMap[(row.SubCategoryName || "").trim().toLowerCase()],
+          SKU: row.SKU,
+          modelName: row.ModelName || "",
+          minQuantity: Number(row.MinQuantity) || 0,
+          HSN: row.HSN || "",
+          tax: row.Tax || "",
+          attributes,
+          originalPrice: Number(row["Original Price"]) || 0,
+          sellingPrice: [
+            { minQuantity: Number(row.Qty1), pricePerUnit: Number(row.Price1) },
+            { minQuantity: Number(row.Qty2), pricePerUnit: Number(row.Price2) },
+            { minQuantity: Number(row.Qty3), pricePerUnit: Number(row.Price3) },
+          ].filter(e => e.minQuantity && e.pricePerUnit),
+          availableQuantity: Number(row["Available Quantity"]) || 0,
+          soldQuantity: 0,
+          isAvailable: row.Status === "Active",
+          isFeatured: row.IsFeatured === "true" || false,
+          isOffer: row.IsOffer === "true" || false,
+          productCode: row.ProductCode || "",
+        };
+
+        console.log(productData);
+        const res = await axios.post(`/api/v1/products`,  { content: productData }, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        const createdProductId = res.data.data._id;
+        console.log(`Created product Id: ${createdProductId}`);
+
+        const imagePaths = row.ImagePath
+        ? row.ImagePath.split(";").map(img => img.trim()).filter(Boolean)
+        : [];
+
+      const imageUrls = {
+          imageUrls: imagePaths
+      };
+
+        await axios.put(`/api/v1/products/${createdProductId}/imagesurl`, imageUrls, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        console.log(`✅ Uploaded images for ${productData.title}`);
+
+      } catch (err) {
+        console.error("Error creating product:", err);
+      }
+    }
+    alert("Bulk product creation completed!");
+  } catch (error) {
+    console.error("Error processing Excel:", error);
+    alert("Failed to process the bulk product Excel file.");
   }
 };
 
@@ -232,7 +347,23 @@ const handleProductUpdateFromExcel = async (file: File) => {
         e.target.value = ""; // Allow re-uploading same file if needed
       }
     }}
-  />
+/>
+ <Button variant="outline" onClick={() => fileInputRefBulk.current?.click()}>
+  Create Bulk Products
+</Button>
+<input
+  type="file"
+  accept=".xlsx, .xls"
+  ref={fileInputRefBulk}
+  style={{ display: "none" }}
+  onChange={(e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleBulkProductCreateFromExcel(file);
+      e.target.value = ""; // Reset file input
+    }
+  }}
+/>
 
   <Button onClick={() => setIsModalOpen(true)}>
     <Plus className="w-4 h-4 mr-2" /> Add New

@@ -109,7 +109,7 @@ const Products = () => {
   }, [subcategories]);
   
   const formattedProducts = products.map((item) => ({
-    id:item.id,
+    id:item._id,
     SKU:item.SKU,
     title: item.title,
     originalPrice: item.originalPrice,
