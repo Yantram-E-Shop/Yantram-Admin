@@ -63,7 +63,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data, existingZones, onZ
       <AddZoneModal
         isOpen={editModalOpen}
         onClose={() => setEditModalOpen(false)}
-        onZoneAdded={(zone) => {
+        onZoneAdded={(zone: any) => {
           onZoneAdded(zone); // Notify parent
           setEditModalOpen(false);
         }}

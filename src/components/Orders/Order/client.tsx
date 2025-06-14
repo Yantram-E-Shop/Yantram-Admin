@@ -46,7 +46,7 @@ const handleExportToExcel = async () => {
   }
 
   try {
-    const detailedOrders = [];
+    const detailedOrders: any[] = [];
     for (const order of data) {
       const res = await axios.get(`/api/v1/orders/admin/orders/${order.id}`, {
         headers: {
@@ -55,7 +55,7 @@ const handleExportToExcel = async () => {
       });
 
       const o = res.data?.data;
-      o.items.forEach((item) => {
+      o.items.forEach((item: { product: { SKU: any; title: any; sellingPrice: { pricePerUnit: any; }[]; }; quantity: any; }) => {
         detailedOrders.push({
           "Date": format(new Date(o.createdAt), "yyyy-MM-dd"),
           "Order ID": o.orderID,

@@ -69,46 +69,46 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   };
 
   return (
-    <>
-      {/* Delete Confirmation Modal */}
-      <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onConfirm}
-        loading={loading}
-      />
+      <>
+          {/* Delete Confirmation Modal */}
+          <AlertModal
+              isOpen={open}
+              onClose={() => setOpen(false)}
+              onConfirm={onConfirm}
+              loading={loading}
+          />
 
-      {/* Edit Product Modal */}
-      {editModalOpen && selectedProduct && (
-        <EditProductModal
-          productId={selectedProduct.id}
-          isOpen={editModalOpen}
-          onClose={() => setEditModalOpen(false)}
-          onProductUpdated={handleProductUpdated}
-        />
-      )}
+          {/* Edit Product Modal */}
+          {editModalOpen && selectedProduct && (
+              <EditProductModal
+                  productId={(selectedProduct as { id: string }).id}
+                  isOpen={editModalOpen}
+                  onClose={() => setEditModalOpen(false)}
+                  onProductUpdated={handleProductUpdated}
+              />
+          )}
 
-      {/* Dropdown Menu */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="w-8 h-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => onCopy(data.id)}>
-            <Copy className="w-4 h-4 mr-2" /> Copy Id
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleOpenEditModal}>
-            <Edit className="w-4 h-4 mr-2" /> Update
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpen(true)}>
-            <Trash className="w-4 h-4 mr-2" /> Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+          {/* Dropdown Menu */}
+          <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="w-8 h-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="w-4 h-4" />
+                  </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => onCopy(data.id)}>
+                      <Copy className="w-4 h-4 mr-2" /> Copy Id
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleOpenEditModal}>
+                      <Edit className="w-4 h-4 mr-2" /> Update
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setOpen(true)}>
+                      <Trash className="w-4 h-4 mr-2" /> Delete
+                  </DropdownMenuItem>
+              </DropdownMenuContent>
+          </DropdownMenu>
+      </>
   );
 };

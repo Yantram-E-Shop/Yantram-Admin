@@ -38,8 +38,7 @@ export const ShippingClient: React.FC<ShippingClientProps> = ({
 
       <DataTable
         columns={generateColumns(data, onZoneAdded)} // ✅ correct usage here
-        data={data}
-      />
+        data={data} searchKey={""}      />
 
       <Heading title="API" description="API Calls for Shipping Zone" />
       <Separator />

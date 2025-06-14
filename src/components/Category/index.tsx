@@ -74,13 +74,13 @@ const Category = () => {
           data={formattedCategories}
           rawCategories={categories}
         />
-        <AddCategoryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onCategoryAdded={onCategoryAdded} />
+        <AddCategoryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onCategoryAdded={onCategoryAdded} categoryToEdit={undefined} />
         <AddSubcategoryModal
           isOpen={isSubcategoryModalOpen} // Use the state for the subcategory modal
           onClose={() => setIsSubcategoryModalOpen(false)}
           onSubcategoryAdded={onSubcategoryAdded}
           categories={categories} // Pass the categories for the dropdown
-        />
+          subcategoryToEdit={undefined}        />
       </div>
     </div>
   );
