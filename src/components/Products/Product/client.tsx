@@ -77,6 +77,17 @@ const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   }
 };
 
+const formatAttributes = (attributes, attributeMap) => {
+  if (!Array.isArray(attributes)) return "";
+
+  return attributes
+    .map(({ attribute, value }) => {
+      const attrName = attributeMap[attribute] || attribute; // fallback to ID if name not found
+      return `${attrName}:${value}`;
+    })
+    .join(";");
+};
+
 const handleExportToExcel = async () => {
   try {
         const res = await axios.get(`api/v1/products?limit=100000&searchQuery=${searchQuery}`, {
@@ -92,49 +103,51 @@ const handleExportToExcel = async () => {
       return;
     }
 
-    const resCat = await axios.get(`api/v1/category`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-    
-    const categories = resCat.data.data;
+    const [resCat, resSubCat, resAttr] = await Promise.all([
+      axios.get(`/api/v1/category`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+      axios.get(`/api/v1/sub-category`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+      axios.get(`/api/v1/attributes`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+    ]);
+
     const categoryMap: Record<string, string> = {};
-    categories?.forEach((cat: any) => {
-      categoryMap[cat._id] = cat.name;
+    resCat.data.data.forEach((cat: any) => {
+      categoryMap[cat._id] = cat.name.trim();
     });
 
-    const resSubCat = await axios.get(`api/v1/sub-category`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-    });
-    
-    const subCategories = resSubCat.data.data;
     const subCategoryMap: Record<string, string> = {};
-    subCategories?.forEach((cat: any) => {
-      subCategoryMap[cat._id] = cat.name;
+    resSubCat.data.data.forEach((sub: any) => {
+      subCategoryMap[sub._id] = sub.name.trim();
     });
 
+    const attributeMap: Record<string, string> = {};
+    resAttr.data.data.forEach((attr: any) => {
+      attributeMap[attr._id] =attr.name.trim();
+    });
 
-    const formatted = allProducts.map((product: any) => ({
-      "ID":product._id,
-      "SKU":product.SKU,
-      "Title": product.title,
-      "CategoryId": product.category || "N/A",
-      "CategoryName": categoryMap[product.category],
-      "SubcategoryId": product.subCategory || "N/A",
-      "Sub-CategoryName": subCategoryMap[product.subCategory],
-      "Original Price": product.originalPrice,
-      "Available Quantity": product.availableQuantity,
-      "Status": product.isAvailable ? "Active" : "Inactive",
-         // Flattened Selling Prices
-    "Qty1": product.sellingPrice[0]?.minQuantity ,
-    "Price1": product.sellingPrice[0]?.pricePerUnit,
-    "Qty2": product.sellingPrice[1]?.minQuantity ,
-    "Price2": product.sellingPrice[1]?.pricePerUnit ,
-    "Qty3": product.sellingPrice[2]?.minQuantity ,
-    "Price3": product.sellingPrice[2]?.pricePerUnit ,
+  const formatted = allProducts.map((product: any) => ({
+  "ID":product._id,
+  "Title": product.title,
+  "Description": product.description,
+  "CategoryName": categoryMap[product.category],
+  "Sub-CategoryName": subCategoryMap[product.subCategory],
+  "SKU": product.SKU,
+  "ModelName": product.modelName || "",
+  "MinQuantity": product.minQuantity?.toString() || "0",
+  "HSN": product.HSN || "",
+  "Tax": product.tax || "",
+  "Original Price": product.originalPrice?.toString() || "0",
+  "Qty1": product.sellingPrice?.[0]?.minQuantity?.toString() || "",
+  "Price1": product.sellingPrice?.[0]?.pricePerUnit?.toString() || "",
+  "Qty2": product.sellingPrice?.[1]?.minQuantity?.toString() || "",
+  "Price2": product.sellingPrice?.[1]?.pricePerUnit?.toString() || "",
+  "Qty3": product.sellingPrice?.[2]?.minQuantity?.toString() || "",
+  "Price3": product.sellingPrice?.[2]?.pricePerUnit?.toString() || "",
+  "Available Quantity": product.availableQuantity?.toString() || "0",
+  "Status": product.isAvailable ? "Active" : "Inactive",
+  "IsFeatured": product.isFeatured ? "true" : "false",
+  "IsOffer": product.isOffer ? "true" : "false",
+  "ProductCode": product.productCode || "",
+  "Attributes": formatAttributes(product.attributes,attributeMap),
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(formatted);
@@ -178,7 +191,7 @@ const handleBulkProductCreateFromExcel = async (file: File) => {
       attributeMap[attr.name.trim().toLowerCase()] = attr._id;
     });
 
-    console.log(subCategoryMap);
+    //console.log(subCategoryMap);
 
 
     // Step 2: Process each row
@@ -270,6 +283,28 @@ const handleProductUpdateFromExcel = async (file: File) => {
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const json: ProductUpdateRow[] = XLSX.utils.sheet_to_json(sheet);
 
+    const [resCat, resSubCat, resAttr] = await Promise.all([
+      axios.get(`/api/v1/category`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+      axios.get(`/api/v1/sub-category`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+      axios.get(`/api/v1/attributes`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+    ]);
+
+    const categoryMap: Record<string, string> = {};
+    resCat.data.data.forEach((cat: any) => {
+      categoryMap[cat.name.trim().toLowerCase()] = cat._id;
+    });
+
+    const subCategoryMap: Record<string, string> = {};
+    resSubCat.data.data.forEach((sub: any) => {
+      subCategoryMap[sub.name.trim().toLowerCase()] = sub._id;
+    });
+
+    const attributeMap: Record<string, string> = {};
+    resAttr.data.data.forEach((attr: any) => {
+      attributeMap[attr.name.trim().toLowerCase()] = attr._id;
+    });
+
+
     for (const row of json) {
       try {
         // Step 2: Get product details by ID
@@ -278,22 +313,48 @@ const handleProductUpdateFromExcel = async (file: File) => {
         });
 
         const product = productRes.data.data;
+        const attributes: { attribute: string; value: string }[] = [];
+        if (row.Attributes) {
+        const attrPairs = (row.Attributes as string).split(";");
+        for (const pair of attrPairs) {
+          const [key, value] = pair.split(":");
+          if (key && value) {
+            const attrId = attributeMap[key.trim().toLowerCase()];
+            if (attrId) {
+              attributes.push({ attribute: attrId, value: value.trim() });
+            } else {
+              console.warn(`Attribute "${key}" not found in system.`);
+            }
+          }
+        }
+        }
+
 
         // Step 3: Update fields
         const updatedProduct = {
-  ...product, // Start with existing product fields
-  title: row.Title,
-  SKU: row.SKU,
-  category: row.CategoryId,           // Match how you're exporting
-  subCategory: row.SubcategoryId,     // Correct the field name
-  originalPrice: Number(row["Original Price"]),
-  availableQuantity: Number(row["Available Quantity"]),
-  isAvailable: row.Status === "Active", // Convert string to boolean
-  sellingPrice: [
-    { minQuantity: row.Qty1, pricePerUnit: row.Price1 },
-    { minQuantity: row.Qty2, pricePerUnit: row.Price2 },
-    { minQuantity: row.Qty3, pricePerUnit: row.Price3 },
-  ].filter(e => e.minQuantity && e.pricePerUnit),
+          ...product, // Start with existing product fields
+          title: row.Title,
+          description: row.Description,
+          category: categoryMap[(row.CategoryName || "").trim().toLowerCase()],
+          subCategory: subCategoryMap[(row.SubCategoryName || "").trim().toLowerCase()],
+          SKU: row.SKU,
+          modelName: row.ModelName || "",
+          minQuantity: Number(row.MinQuantity) || 0,
+          HSN: row.HSN || "",
+          tax: row.Tax || "",
+          attributes,
+          originalPrice: Number(row["Original Price"]) || 0,
+          sellingPrice: [
+            { minQuantity: Number(row.Qty1), pricePerUnit: Number(row.Price1) },
+            { minQuantity: Number(row.Qty2), pricePerUnit: Number(row.Price2) },
+            { minQuantity: Number(row.Qty3), pricePerUnit: Number(row.Price3) },
+          ].filter(e => e.minQuantity && e.pricePerUnit),
+          availableQuantity: Number(row["Available Quantity"]) || 0,
+          soldQuantity: 0,
+          isAvailable: row.Status === "Active",
+          isFeatured: row.IsFeatured === "true" || false,
+          isOffer: row.IsOffer === "true" || false,
+          productCode: row.ProductCode || "",
         };
 
         // Step 4: Call update API
