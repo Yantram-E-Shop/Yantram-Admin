@@ -59,7 +59,7 @@ const handleExportToExcel = async () => {
         },
       });
 
-      const o = res.data?.data;
+      const o = res.data?.data?.order;
       o.items.forEach((item: { product: { SKU: any; title: any; sellingPrice: { pricePerUnit: any; }[]; }; quantity: any; }) => {
         detailedOrders.push({
           "Date": format(new Date(o.createdAt), "yyyy-MM-dd"),
