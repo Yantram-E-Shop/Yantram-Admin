@@ -10,6 +10,7 @@ import { toast } from "react-hot-toast";
 const OrderDetails = () => {
     const { orderId } = useParams();
     const [order, setOrder] = useState<any>(null);
+    const [shippingDetail, setShippingDetail] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
     const authContext = useContext(AuthContext);
@@ -26,7 +27,8 @@ const OrderDetails = () => {
                         },
                     }
                 );
-                setOrder(response.data.data);
+                setOrder(response.data.data.order);
+                setShippingDetail(response.data.data.shippingDetail);
             } catch (error) {
                 console.error("Error fetching order details:", error);
             } finally {
@@ -162,6 +164,27 @@ const OrderDetails = () => {
                 </div>
             ) : (
                 <p className="text-gray-500">No Payment Info.</p>
+            )}
+
+<h2 className="text-xl font-semibold mt-4">Shipment Info</h2>
+            {order.status === 'Shipping' ? (
+                <div className="border p-4 rounded-md">
+             <p>
+                <strong>Status:</strong>{" "}
+                {shippingDetail?.status || "N/A"}
+            </p>
+            <p>
+                <strong>Location:</strong> {shippingDetail?.location}
+            </p>
+            <p>
+                <strong>LastUpdated :</strong> {shippingDetail?.lastUpdated}
+            </p>
+            <p>
+                <strong>Details:</strong> {shippingDetail?.instructions}
+            </p>
+        </div>
+            ) : (
+                <p className="text-gray-500">No Shipment Info.</p>
             )}
 
             <h2 className="text-xl font-semibold mt-4">Shipping Address</h2>
