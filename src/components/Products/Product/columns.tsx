@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { CellAction } from "./cell-action";
 
 export type ProductColumn = {
-  id:string;
+  _id:string;
   SKU:string;
   title: string;
   originalPrice: string | number;

@@ -63,6 +63,34 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const fileInputRefBulk = useRef<HTMLInputElement | null>(null);
 
+  interface ProductRow {
+  ID: string;
+  Attributes?: string;
+  Title: string;
+  Description?: string;
+  CategoryName?: string;
+  SubCategoryName?: string;
+  SKU: string;
+  ModelName?: string;
+  MinQuantity?: string | number;
+  HSN?: string;
+  Tax?: string;
+  Qty1?: string | number;
+  Price1?: string | number;
+  Qty2?: string | number;
+  Price2?: string | number;
+  Qty3?: string | number;
+  Price3?: string | number;
+  "Original Price"?: string | number;
+  "Available Quantity"?: string | number;
+  Status?: string;
+  IsFeatured?: string;
+  IsOffer?: string;
+  ProductCode?: string;
+  ImagePath?: string;
+}
+
+
 const triggerFileSelect = () => {
   fileInputRef.current?.click();
 };
@@ -77,7 +105,7 @@ const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   }
 };
 
-const formatAttributes = (attributes, attributeMap) => {
+const formatAttributes = (attributes: any[], attributeMap: Record<string, string>) => {
   if (!Array.isArray(attributes)) return "";
 
   return attributes
@@ -195,10 +223,8 @@ const handleBulkProductCreateFromExcel = async (file: File) => {
 
 
     // Step 2: Process each row
-    for (const row of json) {
+    for (const row of json as ProductRow[]) {
       try {
-        console.log("Subctaegory Name",row.SubCategoryName);
-        console.log(subCategoryMap[(row.SubCategoryName || "").trim().toLowerCase()]);
         const attributes: { attribute: string; value: string }[] = [];
 
         if (row.Attributes) {
@@ -281,7 +307,7 @@ const handleProductUpdateFromExcel = async (file: File) => {
     const data = await file.arrayBuffer();
     const workbook = XLSX.read(data, { type: "array" });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const json: ProductUpdateRow[] = XLSX.utils.sheet_to_json(sheet);
+    const json: ProductRow[] = XLSX.utils.sheet_to_json(sheet);
 
     const [resCat, resSubCat, resAttr] = await Promise.all([
       axios.get(`/api/v1/category`, { headers: { Authorization: `Bearer ${accessToken}` } }),
@@ -305,7 +331,7 @@ const handleProductUpdateFromExcel = async (file: File) => {
     });
 
 
-    for (const row of json) {
+for (const row of json as ProductRow[]) {
       try {
         // Step 2: Get product details by ID
         const productRes = await axios.get(`/api/v1/products/${row.ID}`, {
