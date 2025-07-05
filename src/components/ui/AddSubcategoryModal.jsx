@@ -184,7 +184,7 @@ const AddSubcategoryModal = ({
       <select
         value={selectedCategoryId}
         onChange={handleCategoryChange}
-        className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+        className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
       >
         <option value="">Select Category</option>
         {categories.map((category) => (
@@ -199,14 +199,14 @@ const AddSubcategoryModal = ({
         placeholder="Subcategory Name"
         value={subcategoryName}
         onChange={handleInputChange}
-        className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+        className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
       />
 
       <input
         type="file"
         accept="image/*"
         onChange={handleLogoUpload}
-        className="w-full mb-4 p-2 bg-gray-900 text-white rounded"
+        className="w-full mb-4 p-2 bg-gray-900 text-black rounded"
       />
 
       {logoPreview && (

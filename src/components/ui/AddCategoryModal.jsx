@@ -158,7 +158,7 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit }) 
         placeholder="Category Name"
         value={categoryName}
         onChange={handleInputChange}
-        className="w-full mb-4 p-2 bg-gray-900 text-white rounded border border-gray-600"
+        className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
       />
 
       <input

@@ -32,8 +32,9 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
           },
         })
         .then((res) => {
-          const fetchedOrder = res.data.data;
+          const fetchedOrder = res.data.data?.order;
           setOrder(fetchedOrder);
+          console.log(fetchedOrder);
 
           const defaultShipped = {};
           fetchedOrder.items.forEach((item) => {
