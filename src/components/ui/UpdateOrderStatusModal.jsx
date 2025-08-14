@@ -13,11 +13,14 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
   const [feedback, setFeedback] = useState({ type: "", message: "" });
   const [shippedQuantities, setShippedQuantities] = useState({});
   const [packageInfo, setPackageInfo] = useState({
-    waybill:"",
-    length: "",
-    breadth: "",
-    height: "",
-    weight: "",
+  shippingPartner: "",
+  shipmentMode: "", // ✅ Added
+  waybill: "",
+  length: "",
+  breadth: "",
+  height: "",
+  weight: "",
+  shipmentLink: "", // ✅ Added
   });
 
   const authContext = useContext(AuthContext);
@@ -210,7 +213,8 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
   [
     "Delhivery",
     "BlueDart",
-    "ShipRocket"
+    "ShipRocket",
+    "Other"
   ];
 
   return (
@@ -310,41 +314,80 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
 
       {/* Shipping Status: Package Info */}
       {orderData.status === "Shipping" && (
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">Package Info</h3>
-          {/* ✅ Shipping Partner Dropdown */}
-          <div className="mt-4">
-            <label className="block text-sm mb-1">Shipping Partner</label>
-            <select
-              name="shippingPartner"
-              value={packageInfo.shippingPartner}
-              onChange={handlePackageInfoChange}
-              className="w-full p-2 bg-gray-100 border rounded"
-            >
-              <option value="">Select Partner</option>
-              {ShipmentPartner.map((partner) => (
-                <option key={partner} value={partner}>
-                  {partner}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {["waybill","length", "breadth", "height", "weight"].map((field) => (
-              <div key={field}>
-                <label className="block text-sm mb-1 capitalize">{field}</label>
-                <input
-                  type="string"
-                  name={field}
-                  className="w-full p-2 border rounded"
-                  value={packageInfo[field]}
-                  onChange={handlePackageInfoChange}
-                />
-              </div>
-            ))}
-          </div>
+  <div className="mb-4">
+    <h3 className="text-lg font-semibold mb-2">Package Info</h3>
+
+    {/* Shipping Partner Dropdown */}
+    <div className="mt-4">
+      <label className="block text-sm mb-1">Shipping Partner</label>
+      <select
+        name="shippingPartner"
+        value={packageInfo.shippingPartner}
+        onChange={handlePackageInfoChange}
+        className="w-full p-2 bg-gray-100 border rounded"
+      >
+        <option value="">Select Partner</option>
+        {ShipmentPartner.map((partner) => (
+          <option key={partner} value={partner}>
+            {partner}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    {/* If "Other" → ONLY show Shipment Link */}
+    {packageInfo.shippingPartner === "Other" && (
+      <div className="mt-4">
+        <label className="block text-sm mb-1">Shipment Link</label>
+        <input
+          type="text"
+          name="shipmentLink"
+          placeholder="Enter tracking link"
+          className="w-full p-2 border rounded"
+          value={packageInfo.shipmentLink}
+          onChange={handlePackageInfoChange}
+        />
+      </div>
+    )}
+
+    {/* If Delhivery, ShipRocket, or BlueDart */}
+    {["Delhivery", "ShipRocket", "BlueDart"].includes(packageInfo.shippingPartner) && (
+      <>
+        {/* Shipment Mode Dropdown */}
+        <div className="mt-4">
+          <label className="block text-sm mb-1">Shipment Mode</label>
+          <select
+            name="shipmentMode"
+            value={packageInfo.shipmentMode}
+            onChange={handlePackageInfoChange}
+            className="w-full p-2 bg-gray-100 border rounded"
+          >
+            <option value="">Select Mode</option>
+            <option value="Surface">Surface</option>
+            <option value="Air">Air</option>
+          </select>
         </div>
-      )}
+
+        {/* Package Fields */}
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          {["waybill", "length", "breadth", "height", "weight"].map((field) => (
+            <div key={field}>
+              <label className="block text-sm mb-1 capitalize">{field}</label>
+              <input
+                type="text"
+                name={field}
+                className="w-full p-2 border rounded"
+                value={packageInfo[field]}
+                onChange={handlePackageInfoChange}
+              />
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+  </div>
+)}
+
 
       <button
         onClick={handleSubmit}

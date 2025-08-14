@@ -182,6 +182,17 @@ const OrderDetails = () => {
             <p>
                 <strong>Details:</strong> {shippingDetail?.instructions}
             </p>
+            <p>
+  <strong>Tracking Link:</strong>{" "}
+  {order?.trackingLink ? (
+    <a href={order.trackingLink} target="_blank" rel="noopener noreferrer">
+      {order.trackingLink}
+    </a>
+  ) : (
+    "No tracking link"
+  )}
+</p>
+
         </div>
             ) : (
                 <p className="text-gray-500">No Shipment Info.</p>
