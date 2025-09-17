@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState ,useContext} from "react";
 import { toast } from "react-hot-toast";
 import  UpdateOrderStatusModal  from "../../ui/UpdateOrderStatusModal.jsx"
+import AttachInvoiceModal from "../../ui/AttachInvoiceModal.jsx";
 import { AuthContext } from "@/context/AuthContext";
 import { AlertModal } from "@/components/modals/alert-modal";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }:{data:any}) => {
   const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
+  const [attachInvoiceOpen, setAttachInvoiceOpen] = useState(false);
 
 const onDelete = (id: string) => {
   setDeletingOrderId(id);         // Set order to delete
@@ -117,6 +119,17 @@ const confirmDelete = async () => {
           onOrderStatusupdate={handleOrderStatusUpdated}
         />
       )}
+
+      <AttachInvoiceModal
+      isOpen={attachInvoiceOpen}
+      onClose={() => setAttachInvoiceOpen(false)}
+      orderId={data.id}
+      accessToken={accessToken}
+      onUploadSuccess={() => {
+        router.refresh();
+      }}
+    />
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="w-8 h-8 p-0">
@@ -138,6 +151,9 @@ const confirmDelete = async () => {
           <DropdownMenuItem onClick={handleOpenOrderStatusModal}>
             <Edit className="w-4 h-4 mr-2" /> Manage Order 
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setAttachInvoiceOpen(true)}>
+          <Edit className="w-4 h-4 mr-2" /> Attach Tax Invoice
+         </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onDelete(data.id)}>
           <Trash className="w-4 h-4 mr-2 text-red-500" /> Delete Order
           </DropdownMenuItem>

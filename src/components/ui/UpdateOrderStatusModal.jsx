@@ -364,7 +364,7 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
           >
             <option value="">Select Mode</option>
             <option value="Surface">Surface</option>
-            <option value="Air">Air</option>
+            <option value="Express">Express</option>
           </select>
         </div>
 
