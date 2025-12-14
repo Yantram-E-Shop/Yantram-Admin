@@ -462,10 +462,10 @@ for (const row of json as ProductRow[]) {
       <Separator />
 
       {/* 🔍 Search Input */}
-      {/* <div className="mt-4 mb-2">
+      { <div className="mt-4 mb-2">
         <input
           type="text"
-          placeholder="Search products..."
+          placeholder="Search products Global..."
           value={localSearch}
           onChange={handleSearchChange}
           className="w-full p-2 text-white bg-black border border-gray-600 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -475,7 +475,7 @@ for (const row of json as ProductRow[]) {
             Enter at least 3 characters to search.
           </p>
         )}
-      </div> */}
+      </div> }
 
       <DataTable searchKey="title" columns={columns} data={data} />
       <div className="flex items-center justify-between py-4 space-x-2">

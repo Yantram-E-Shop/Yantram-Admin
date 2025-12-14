@@ -35,7 +35,7 @@ const Products = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${BASE_URL}/products?page=${page}&limit=500&searchQuery=${searchQuery}`, {
+        const response = await axios.get(`${BASE_URL}/products?page=${page}&limit=100&searchQuery=${searchQuery}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },

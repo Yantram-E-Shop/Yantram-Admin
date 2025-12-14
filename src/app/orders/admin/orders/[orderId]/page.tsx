@@ -266,19 +266,8 @@ const OrderDetails = () => {
                                 <strong>Price:</strong> ₹
                                 {(() => {
                                     // Find the correct price for the current quantity
-                                    const price =
-                                        item?.product?.sellingPrice.find(
-                                            (priceOption: any) =>
-                                                item.quantity >=
-                                                priceOption.minQuantity
-                                        );
-
-                                    // If the price for the current quantity is found, use it; otherwise, fall back to originalPrice
-                                    const selectedPrice = price
-                                        ? price?.pricePerUnit
-                                        : item.product?.originalPrice;
-
-                                    return selectedPrice?.toFixed(2);
+                                    const price = item?.totalPrice/item?.quantity
+                                    return price?.toFixed(2);
                                 })()}
                             </p>
                         </li>
