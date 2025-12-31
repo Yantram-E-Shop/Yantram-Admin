@@ -121,6 +121,7 @@ const Products = () => {
     createdAt: format(new Date(item.createdAt), "MMMM do, yyyy"),
     isAvailable: item.isAvailable,
     availableQuantity: item.availableQuantity,
+    preference: item?.preference || 1,
   }));
 
   if (loading) {

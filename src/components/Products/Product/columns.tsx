@@ -14,6 +14,7 @@ export type ProductColumn = {
   soldQuantity: string | number;
   createdAt: string;
   availableQuantity: string | number;
+  preference: string | number;
   isAvailable: boolean;
   attributes: { attribute: string; value: string; _id: string }[];
 };
@@ -60,6 +61,10 @@ export const columns: ColumnDef<ProductColumn>[] = [
   {
     accessorKey: "availableQuantity",
     header: "Available Quantity",
+  },
+  {
+    accessorKey: "preference",
+    header: "Preference",
   },
   {
     accessorKey: "soldQuantity",

@@ -411,6 +411,7 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
     ],
     availableQuantity: 0,
     soldQuantity: 0,
+    preference: 1,
     isAvailable: false,
     isFeatured: false,
     isOffer: false,
@@ -831,6 +832,15 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
             name="availableQuantity"
             placeholder="Available Quantity"
             value={productData.availableQuantity}
+            onChange={handleInputChange}
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
+          />
+          
+          <input
+            type="number"
+            name="preference"
+            placeholder="Preference"
+            value={productData.preference}
             onChange={handleInputChange}
             className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />
