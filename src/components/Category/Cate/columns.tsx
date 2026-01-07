@@ -10,6 +10,7 @@ import SubcategoryAction from "./SubcategoryAction";
 export type CategoryColumn = {
   _id: string;
   name: string; // Category name
+  preference: number; // Category preference
   subcategories: { _id: string; name: string }[]; // Array of subcategories
   createdAt: string;
   updatedAt: string;
@@ -20,6 +21,10 @@ export const getColumns = (allCategories: CategoryColumn[]): ColumnDef<CategoryC
   {
     accessorKey: "_id",
     header: "ID",
+  },
+  {
+    accessorKey: "preference",
+    header: "Preference",
   },
   {
     accessorKey: "name",
@@ -33,6 +38,7 @@ export const getColumns = (allCategories: CategoryColumn[]): ColumnDef<CategoryC
         {row.original.subcategories.length > 0 ? (
           row.original.subcategories.map((subcat) => (
             <div key={subcat._id} className="flex justify-between">
+              <span>{subcat.preference}</span>
               <span>{subcat.name}</span>
               <SubcategoryAction 
                 subcategoryId={subcat._id} 
@@ -50,10 +56,6 @@ export const getColumns = (allCategories: CategoryColumn[]): ColumnDef<CategoryC
   {
     accessorKey: "createdAt",
     header: "Created At",
-  },
-  {
-    accessorKey: "updatedAt",
-    header: "Updated At",
   },
   {
     id: "actions",

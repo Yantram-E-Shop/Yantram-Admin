@@ -13,6 +13,7 @@ const AddSubcategoryModal = ({
   categories,
 }) => {
   const [subcategoryName, setSubcategoryName] = useState("");
+  const [subcategoryPreference, setSubcategoryPreference] = useState(1);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [logo, setLogo] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null); // ✨ Preview
@@ -35,6 +36,7 @@ const AddSubcategoryModal = ({
             }
           );
           setSubcategoryName(res.data.data.name);
+          setSubcategoryPreference(res.data.data.preference || 1);
           setSelectedCategoryId(res.data.data.category || "");
           if (res.data.data.logoUrl) {
             setLogoPreview(res.data.data.logoUrl); // fix: use res.data.data.logoUrl
@@ -53,6 +55,8 @@ const AddSubcategoryModal = ({
 
   const handleInputChange = (e) => setSubcategoryName(e.target.value);
 
+  const handlePreferenceChange = (e) => setSubcategoryPreference(Number(e.target.value));
+
   const handleCategoryChange = (e) => setSelectedCategoryId(e.target.value);
 
   const handleLogoUpload = (e) => {
@@ -64,7 +68,7 @@ const AddSubcategoryModal = ({
   };
 
   const handleSubmit = async () => {
-    if (!selectedCategoryId || !subcategoryName) {
+    if (!selectedCategoryId || !subcategoryName ){
       setFeedback({ type: "error", message: "All fields are required" });
       return;
     }
@@ -81,6 +85,7 @@ const AddSubcategoryModal = ({
         const formData = new FormData();
         formData.append("logo", logo);
         formData.append("name",subcategoryName);
+        formData.append("preference", subcategoryPreference);
         formData.append("category",selectedCategoryId);
         const res = await axios.put(
           `/api/v1/sub-category/${subcategoryToEdit}`,formData,
@@ -97,7 +102,9 @@ const AddSubcategoryModal = ({
       {
         const res = await axios.post(
           `/api/v1/sub-category/c/${selectedCategoryId}`,
-          { name: subcategoryName },
+          { name: subcategoryName,
+            preference: subcategoryPreference
+          },
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -144,6 +151,7 @@ const AddSubcategoryModal = ({
 
   const resetForm = () => {
     setSubcategoryName("");
+    setSubcategoryPreference(1);
     setSelectedCategoryId("");
     setLogo(null);
     setLogoPreview(null);
@@ -199,6 +207,14 @@ const AddSubcategoryModal = ({
         placeholder="Subcategory Name"
         value={subcategoryName}
         onChange={handleInputChange}
+        className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
+      />
+
+      <input
+        type="number"
+        placeholder="Subcategory Preference"
+        value={subcategoryPreference}
+        onChange={handlePreferenceChange}
         className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
       />
 

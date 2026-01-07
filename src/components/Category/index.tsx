@@ -50,6 +50,7 @@ const Category = () => {
   const formattedCategories = categories.map((category) => ({
     _id: category._id,
     name: category.name,
+    preference: category.preference,
     subcategories: category.subcategories || [],
     createdAt: format(new Date(category.createdAt), "MMMM do, yyyy"),
     updatedAt: format(new Date(category.updatedAt), "MMMM do, yyyy"),

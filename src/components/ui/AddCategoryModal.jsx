@@ -6,6 +6,7 @@ import { AuthContext } from "@/context/AuthContext";
 
 const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit }) => {
   const [categoryName, setCategoryName] = useState("");
+  const [preference, setPreference] = useState(1);
   const [logo, setLogo] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState({ type: "", message: "" });
@@ -18,6 +19,7 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit }) 
   useEffect(() => {
     if (categoryToEdit) {
       setCategoryName(categoryToEdit.name);
+      setPreference(categoryToEdit.preference);
       setLogoPreview(categoryToEdit.logoUrl); // Set the existing logo URL for preview
     } else {
       setCategoryName("");
@@ -27,6 +29,7 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit }) 
 
   const handleInputChange = (e) => {
     setCategoryName(e.target.value);
+
   };
 
   const handleLogoUpload = (e) => {
@@ -53,6 +56,7 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit }) 
       if (categoryToEdit) {
         // Update category if we are editing an existing one
         formData.append("name", categoryName);
+        formData.append("preference", preference);
         formData.append("logoUpdated", logo);
         response = await axios.put(
           `/api/v1/category/${categoryToEdit._id}`,
@@ -68,7 +72,9 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit }) 
         // Create new category
         response = await axios.post(
           `/api/v1/category`,
-          { name: categoryName },
+          { name: categoryName,
+            preference: preference
+          },
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -117,6 +123,7 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit }) 
 
   const resetForm = () => {
     setCategoryName("");
+    setPreference(1);
     setLogo(null);
     setLogoPreview(null);
   };
@@ -160,7 +167,13 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit }) 
         onChange={handleInputChange}
         className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
       />
-
+      <input
+        type="number"
+        placeholder="Category Preference"
+        value={preference}
+        onChange={(e) => setPreference(Number(e.target.value))}
+        className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
+      />
       <input
         type="file"
         accept="image/*"

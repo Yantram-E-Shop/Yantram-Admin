@@ -6,6 +6,7 @@ import { CellAction } from "./cell-action";
 export type BannerColumn = {
   _id: string;
   title: string;
+  preference: number;
   Page: string;
   createdAt: string;
 };
@@ -18,6 +19,10 @@ export const columns: ColumnDef<BannerColumn>[] = [
   {
     accessorKey: "title",
     header: "Banner Name",
+  },
+  {
+    accessorKey: "preference",
+    header: "Preference",
   },
   {
     accessorKey: "pageName",

@@ -8,6 +8,7 @@ import { BASE_URL } from "@/api/axios";
 const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
   const [bannerData, setBannerData] = useState({
     name: "",
+    preference: 1,
     image: null,
     page: "",
     categoryId: "",
@@ -105,6 +106,7 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
     try {
       const formData = new FormData();
       formData.append("title", bannerData.name);
+      formData.append("preference", bannerData.preference);
       formData.append("pageName", bannerData.page);
       formData.append("image", bannerData.image);
       if (bannerData.categoryId) formData.append("categoryId", bannerData.categoryId);
@@ -124,6 +126,7 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
 
       setBannerData({
         name: "",
+        preference: 1,
         image: null,
         page: "",
         categoryId: "",
@@ -185,6 +188,15 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
         className="w-full mb-4 p-2 bg-gray-200 text-black rounded border border-gray-400"
       />
 
+      <input
+        type="number"
+        name="preference"
+        placeholder="Preference"
+        value={bannerData.preference}
+        onChange={(e) => setBannerData((prev) => ({ ...prev, preference: Number(e.target.value) }))}
+        className="w-full mb-4 p-2 bg-gray-200 text-black rounded border border-gray-400"
+      />
+  
       {/* Image Upload */}
       <input
         type="file"
