@@ -62,25 +62,26 @@ const handleExportToExcel = async () => {
       const o = res.data?.data?.order;
       o.items.forEach((item: { product: { SKU: any; title: any; sellingPrice: { pricePerUnit: any; }[]; }; quantity: any; }) => {
         detailedOrders.push({
+          "Payment Method": o.paymentInfo?.mode || "N/A",
           "Date": format(new Date(o.createdAt), "yyyy-MM-dd"),
           "Order ID": o.orderID,
-          "Status": o.status,
-          "Total Order Cost": o.paymentInfo?.totalamount,
-          "Shipping Cost": o.paymentInfo?.shippingCost,
-          "Order Cost": o.paymentInfo?.amount,
-          "Payment Method": o.paymentInfo?.mode || "N/A",
-          "Product SKU": item.product?.SKU,
-          "Product": item.product?.title,
-          "Product Price/Unit": item.product?.sellingPrice[0].pricePerUnit,
-          "Quantity": item.quantity,
-          "Customer Name": o.address?.user?.fullName,
+          "Shop Name": o.address?.shopName || "N/A", 
+          "Customer Name": o.user?.fullName,
           "Customer Address": o.address?.fullAddress,
           "Customer City": o.address?.district,
           "Customer State": o.address?.state,
           "Customer Pincode": o.address?.pincode,
-          "Customer PhoneNumber": o.address?.phoneNumber,
+          "Customer PhoneNumber": o.address?.phoneNumber || o.user?.phoneNumber || "N/A",
           "Customer GST number": o.address?.gstNumber,
-        });
+          "Product SKU": item.product?.SKU,
+          "Product": item.product?.title,
+          "Quantity": item.quantity,
+          "Product Price/Unit": item.product?.sellingPrice[0].pricePerUnit,
+          "Order Cost": o.paymentInfo?.amount,
+          "Shipping Cost": o.paymentInfo?.shippingCost,
+          "Total Order Cost": o.paymentInfo?.totalamount,
+          "Status": o.status,
+          });
       });
     }
 

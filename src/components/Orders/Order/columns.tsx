@@ -28,8 +28,12 @@ export const columns: ColumnDef<any>[] = [
     header: "Total Price",
   },
   {
-    accessorKey: "address",
-    header: "Address",
+    accessorKey: "shopName",
+    header: "Shop Name",
+  },
+  {
+    accessorKey: "phoneNumber",
+    header: "Contact Number",
   },
   {
     accessorKey: "status",

@@ -8,7 +8,7 @@ import { useContext, useState } from "react";
 import { toast } from "react-hot-toast";
 
 import { AlertModal } from "@/components/modals/alert-modal";
-import  EditProductModal  from "../../ui/EditProductModal.jsx"
+import AddFaqModal from "../../ui/AddFaqModal.jsx";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -75,6 +75,16 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         loading={loading}
       />
 
+      {/* Edit Modal */}
+      {selectedFaq && (
+        <AddFaqModal
+          isOpen={!!selectedFaq}
+          onClose={() => setSelectedFaq(null)}
+          data={selectedFaq}
+          onFaqAdded={handleProductUpdated}
+        />
+      )}
+
       {/* Dropdown Menu */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -87,6 +97,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem onClick={() => onCopy(data.id)}>
             <Copy className="w-4 h-4 mr-2" /> Copy Id
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleOpenEditModal}>
+            <Edit className="w-4 h-4 mr-2" /> Edit
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setOpen(true)}>
             <Trash className="w-4 h-4 mr-2" /> Delete

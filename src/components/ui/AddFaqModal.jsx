@@ -5,7 +5,7 @@ import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 import { BASE_URL } from "@/api/axios";
 
-const AddFaqModal = ({ isOpen, onClose, onFaqAdded }) => {
+const AddFaqModal = ({ isOpen, onClose, onFaqAdded, data = null }) => {
   const [FaqData, setFaqData] = useState({
     ques: "",
     ans: "",
@@ -16,6 +16,23 @@ const AddFaqModal = ({ isOpen, onClose, onFaqAdded }) => {
 
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
+
+  // Check if in edit mode
+  const isEditMode = !!data;
+
+  useEffect(() => {
+    if (isEditMode && data) {
+      setFaqData({
+        ques: data.question || data.ques || "",
+        ans: data.answer || data.ans || "",
+      });
+    } else {
+      setFaqData({
+        ques: "",
+        ans: "",
+      });
+    }
+  }, [data, isOpen]);
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -30,31 +47,48 @@ const AddFaqModal = ({ isOpen, onClose, onFaqAdded }) => {
 
     try {
       const payload = {
-  question: FaqData.ques,
-  answer: FaqData.ans,
-};
-      const response = await axios.post(`${BASE_URL}/faqs/add`, payload, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+        question: FaqData.ques,
+        answer: FaqData.ans,
+      };
 
-      setFeedback({
-        type: "success",
-        message: "Faq created successfully!",
-      });
-      onFaqAdded(response.data.data); // Pass the new Faq data back to the parent component
+      let response;
+      if (isEditMode) {
+        // Update existing FAQ
+        response = await axios.put(`${BASE_URL}/faqs/${data._id}`, payload, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        setFeedback({
+          type: "success",
+          message: "Faq updated successfully!",
+        });
+      } else {
+        // Create new FAQ
+        response = await axios.post(`${BASE_URL}/faqs/add`, payload, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        setFeedback({
+          type: "success",
+          message: "Faq created successfully!",
+        });
+      }
+
+      onFaqAdded(response.data.data); // Pass the new/updated FAQ data back to the parent component
       onClose(); // Close the modal after submission
       setFaqData({
         ques: "",
         ans: "",
       });
     } catch (error) {
-      console.error("Error creating Faq:", error);
+      console.error("Error saving Faq:", error);
       setFeedback({
         type: "error",
-        message: "Failed to create Faq. Please try again.",
+        message: isEditMode ? "Failed to update Faq. Please try again." : "Failed to create Faq. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -90,7 +124,7 @@ const AddFaqModal = ({ isOpen, onClose, onFaqAdded }) => {
         </p>
       )}
 
-      <h2 className="text-black text-xl mb-4">Add Faq</h2>
+      <h2 className="text-black text-xl mb-4">{isEditMode ? "Edit Faq" : "Add Faq"}</h2>
 
       {/* Name Input */}
       <input
@@ -118,7 +152,7 @@ const AddFaqModal = ({ isOpen, onClose, onFaqAdded }) => {
         disabled={isSubmitting}
         className="w-full p-2 bg-blue-500 text-black rounded hover:bg-blue-600 transition duration-200"
       >
-        {isSubmitting ? "Submitting..." : "Submit Faq"}
+        {isSubmitting ? "Saving..." : isEditMode ? "Update Faq" : "Submit Faq"}
       </button>
     </Modal>
   );

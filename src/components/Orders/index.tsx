@@ -52,6 +52,8 @@ const Orders = () => {
     totalPrice: item.totalPrice,
     address: item.address?.fullAddress + " " + item.address?.landmark + " " + item.address?.district + " " + item.address?.state + " " + item.address?.phoneNumber + " " + item.address?.alternatePhoneNumber|| "N/A",
     // attributes: item.attributes.map(attr => attr.value).join(', ') || "N/A",
+    shopName: item.address?.shopName || "N/A",
+    phoneNumber: item.address?.phoneNumber || "N/A",
     status: item.status,
     createdAt: format(new Date(item.createdAt), "MMMM do, yyyy"),
     id : item._id,

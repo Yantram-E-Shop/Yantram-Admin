@@ -99,7 +99,23 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
     setBannerData((prev) => ({ ...prev, attributes: updated }));
   };
 
+  const isMandatoryFieldsFilled = () => {
+    return bannerData.name.trim() !== "" && 
+           bannerData.preference !== "" && 
+           bannerData.preference !== null &&
+           bannerData.page.trim() !== "" &&
+           bannerData.image !== null;
+  };
+
   const handleSubmit = async () => {
+    if (!isMandatoryFieldsFilled()) {
+      setFeedback({ 
+        type: "error", 
+        message: "Title, Preference, Description, and Image are mandatory fields." 
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     setFeedback({ type: "", message: "" });
 
@@ -147,10 +163,12 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
       color: "#2d2d2d",
       border: "none",
       borderRadius: "10px",
-      padding: "20px",
-      maxWidth: "600px",
+      padding: "12px",
+      maxWidth: "900px",
       margin: "auto",
       boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
+      maxHeight: "90vh",
+      overflow: "auto",
     },
     overlay: {
       backgroundColor: "rgba(0, 0, 0, 0.8)",
@@ -166,60 +184,72 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
         </p>
       )}
 
-      <h2 className="text-black text-xl mb-4">Add Banner</h2>
+      <h2 className="text-black text-lg mb-3">Add Banner</h2>
 
       {/* Banner Name */}
+      <label className="block text-black text-sm font-semibold mb-1">
+        Banner Name <span className="text-red-500">*</span>
+      </label>
       <input
         type="text"
         name="name"
-        placeholder="Banner Name"
+        placeholder="Enter Banner Name"
         value={bannerData.name}
         onChange={handleInputChange}
-        className="w-full mb-4 p-2 bg-gray-200 text-black rounded border border-gray-400"
+        className="w-full mb-3 p-1.5 text-sm bg-gray-200 text-black rounded border border-gray-400"
       />
 
       {/* Page Name */}
+      <label className="block text-black text-sm font-semibold mb-1">
+        Description <span className="text-red-500">*</span>
+      </label>
       <input
         type="text"
         name="page"
-        placeholder="Description"
+        placeholder="Enter Description"
         value={bannerData.page}
         onChange={handleInputChange}
-        className="w-full mb-4 p-2 bg-gray-200 text-black rounded border border-gray-400"
+        className="w-full mb-3 p-1.5 text-sm bg-gray-200 text-black rounded border border-gray-400"
       />
 
+      <label className="block text-black text-sm font-semibold mb-1">
+        Preference <span className="text-red-500">*</span>
+      </label>
       <input
         type="number"
         name="preference"
-        placeholder="Preference"
+        placeholder="Enter Preference"
         value={bannerData.preference}
         onChange={(e) => setBannerData((prev) => ({ ...prev, preference: Number(e.target.value) }))}
-        className="w-full mb-4 p-2 bg-gray-200 text-black rounded border border-gray-400"
+        className="w-full mb-3 p-1.5 text-sm bg-gray-200 text-black rounded border border-gray-400"
       />
   
       {/* Image Upload */}
+      <label className="block text-black text-sm font-semibold mb-1">
+        Banner Image <span className="text-red-500">*</span>
+      </label>
       <input
         type="file"
         accept="image/*"
         onChange={handleImageChange}
-        className="w-full mb-4 p-2 bg-gray-200 text-black rounded"
+        className="w-full mb-3 p-1.5 text-sm bg-gray-200 text-black rounded"
       />
 
       {bannerData.image && (
-        <div className="mb-4">
-          <img src={URL.createObjectURL(bannerData.image)} alt="Banner Preview" className="w-full h-auto rounded" />
+        <div className="mb-3">
+          <img src={URL.createObjectURL(bannerData.image)} alt="Banner Preview" className="w-32 h-32 rounded object-cover" />
         </div>
       )}
 
       {/* Filter Products Section */}
-      <h3 className="text-black text-lg font-semibold mb-2">Filter Products</h3>
+      <h3 className="text-black text-sm font-semibold mb-2">Filter Products</h3>
 
       {/* Category Dropdown */}
       <select
         name="categoryId"
         value={bannerData.categoryId}
         onChange={handleInputChange}
-        className="w-full mb-4 p-2 bg-gray-200 text-black rounded border border-gray-400"
+        className="w-full mb-3 p-1.5 text-sm bg-gray-200 text-black rounded border border-gray-400"
       >
         <option value="">Select Category (optional)</option>
         {categories.map((cat) => (
@@ -234,7 +264,7 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
         name="subCategoryId"
         value={bannerData.subCategoryId}
         onChange={handleInputChange}
-        className="w-full mb-4 p-2 bg-gray-200 text-black rounded border border-gray-400"
+        className="w-full mb-3 p-1.5 text-sm bg-gray-200 text-black rounded border border-gray-400"
         disabled={!bannerData.categoryId}
       >
         <option value="">Select Subcategory (optional)</option>
@@ -246,19 +276,19 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
       </select>
 
       {/* Attribute Filters */}
-      <div className="mb-4">
-  <h4 className="text-black font-medium mb-2">Attributes</h4>
+      <div className="mb-3">
+  <h4 className="text-black text-sm font-medium mb-1">Attributes</h4>
   {bannerData.attributes.map((attr, index) => {
     const selectedAttribute = allAttributes.find((a) => a._id === attr.attributeId);
     const possibleValues = selectedAttribute?.values || [];
 
     return (
-      <div key={index} className="flex items-center mb-2 space-x-2">
+      <div key={index} className="flex items-center mb-1.5 space-x-1.5">
         {/* Attribute Selector */}
         <select
           value={attr.attributeId}
           onChange={(e) => handleAttributeChange(index, "attributeId", e.target.value)}
-          className="flex-1 p-2 bg-gray-200 text-black rounded border border-gray-400"
+          className="flex-1 p-1.5 text-sm bg-gray-200 text-black rounded border border-gray-400"
         >
           <option value="">Select Attribute</option>
           {allAttributes.map((a) => (
@@ -272,7 +302,7 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
         <select
           value={attr.value}
           onChange={(e) => handleAttributeChange(index, "value", e.target.value)}
-          className="flex-1 p-2 bg-gray-200 text-black rounded border border-gray-400"
+          className="flex-1 p-1.5 text-sm bg-gray-200 text-black rounded border border-gray-400"
           disabled={!selectedAttribute}
         >
           <option value="">Select Value</option>
@@ -287,7 +317,7 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
         <button
           type="button"
           onClick={() => removeAttributeRow(index)}
-          className="px-2 py-1 bg-red-500 text-white rounded"
+          className="px-1.5 py-0.5 text-sm bg-red-500 text-white rounded"
         >
           ×
         </button>
@@ -299,7 +329,7 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
   <button
     type="button"
     onClick={addAttributeRow}
-    className="mt-2 px-3 py-1 bg-blue-500 text-white rounded"
+    className="mt-1.5 px-2.5 py-1 text-sm bg-blue-500 text-white rounded"
   >
     + Add Attribute
   </button>
@@ -309,8 +339,12 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
       {/* Submit */}
       <button
         onClick={handleSubmit}
-        disabled={isSubmitting}
-        className="w-full p-2 bg-blue-500 text-black rounded hover:bg-blue-600 transition duration-200"
+        disabled={isSubmitting || !isMandatoryFieldsFilled()}
+        className={`w-full p-1.5 text-sm rounded transition duration-200 ${
+          isMandatoryFieldsFilled()
+            ? "bg-blue-500 text-black hover:bg-blue-600 cursor-pointer"
+            : "bg-gray-400 text-gray-700 cursor-not-allowed opacity-50"
+        }`}
       >
         {isSubmitting ? "Submitting..." : "Submit Banner"}
       </button>

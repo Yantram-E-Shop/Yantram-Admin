@@ -115,7 +115,7 @@ const OrderDetails = () => {
         <div className="p-6 rounded-lg shadow-md">
             <h1 className="text-2xl font-bold mb-4">Order Details</h1>
             <p>
-                <strong>Order ID:</strong> {order._id}
+                <strong>Order ID:</strong> {order.orderID}
             </p>
             <p>
                 <strong>Status:</strong> {order.status}
@@ -198,9 +198,33 @@ const OrderDetails = () => {
                 <p className="text-gray-500">No Shipment Info.</p>
             )}
 
+            <h2 className="text-xl font-semibold mt-4">Customer Information</h2>
+            {order.user ? (
+                <div className="border p-4 rounded-md">
+                    <p>
+                        <strong>Customer Name:</strong>{" "}
+                        {order.user?.fullName || "N/A"}
+                    </p>
+                    <p>
+                        <strong>Customer Email:</strong>{" "}
+                        {order.user?.email || "N/A"}
+                    </p>
+                    <p>
+                        <strong>Customer Phone Number:</strong>{" "}
+                        {order.user?.phoneNumber || "N/A"}
+                    </p>
+                </div>
+            ) : (
+                <p className="text-gray-500">No customer information available.</p>
+            )}
+
             <h2 className="text-xl font-semibold mt-4">Shipping Address</h2>
             {order.address ? (
                 <div className="border p-4 rounded-md">
+                    <p>
+                        <strong>Shop Name:</strong>{" "}
+                        {order.address.shopName}
+                    </p>
                     <p>
                         <strong>Full Address:</strong>{" "}
                         {order.address.fullAddress}
