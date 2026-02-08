@@ -329,7 +329,7 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
   <button
     type="button"
     onClick={addAttributeRow}
-    className="mt-1.5 px-2.5 py-1 text-sm bg-blue-500 text-white rounded"
+    className="mt-1.5 px-2.5 py-1 text-sm bg-blue-500 text-black rounded"
   >
     + Add Attribute
   </button>
