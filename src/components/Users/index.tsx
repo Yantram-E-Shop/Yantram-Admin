@@ -15,11 +15,13 @@ const Users = () => {
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`/api/v1/user?page=${page}&limit=10000`, {
+        const response = await axios.get(`/api/v1/user?page=${page}&limit=10000&searchQuery=${searchQuery}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -38,11 +40,12 @@ const Users = () => {
     };
 
     fetchUsers();
-  }, [accessToken, page]);
+  }, [accessToken, page, searchQuery]);
 
   const formattedUsers = users.map((user) => ({
     id: user._id,
     fullName: user.fullName || "N/A",
+    shopName: user.addresses && user.addresses.length > 0 ? user.addresses[0].shopName : "N/A",
     phoneNumber: user.phoneNumber || "N/A",
     role: user.role || "N/A",
     fcmToken: user.fcmToken || "N/A",
@@ -63,6 +66,8 @@ const Users = () => {
           page={page}
           setPage={setPage}
           totalPages={totalPages}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
           totalUsers={totalUsers}
         />
       </div>

@@ -3,6 +3,7 @@ import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 import { BASE_URL } from "@/api/axios";
+import { toast } from "react-hot-toast";
 
 const AddCouponModal = ({ isOpen, onClose, onCouponAdded }) => {
   const [code, setCode] = useState("");
@@ -41,12 +42,14 @@ const handleSubmit = async () => {
 
     console.log("Coupon created:", response.data);
     onCouponAdded();
+    toast.success("Coupon added successfully!");
     onClose();
   } catch (error) {
     console.error(
       "Error adding coupon:",
       error.response?.data || error.message
     ); // Log the actual error response
+    toast.error(error.response?.data?.message || "Failed to add coupon.");
   } finally {
     setIsSubmitting(false);
   }

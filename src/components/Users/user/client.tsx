@@ -1,6 +1,8 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
+import { useState } from "react";
+
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
@@ -14,13 +16,41 @@ interface UsersClientProps {
   data: any[];
   page: number;
   setPage: (page: number) => void;
+  searchQuery: string;
+  setSearchQuery: (searchQuery: string) => void;
   totalPages: number;
   totalUsers: number;
 }
 
-export const UsersClient: React.FC<UsersClientProps> = ({ data, page, setPage, totalPages, totalUsers }) => {
+export const UsersClient: React.FC<UsersClientProps> = ({
+  data,
+  page,
+  setPage,
+  searchQuery,
+  setSearchQuery,
+  totalPages,
+  totalUsers
+}) => {
   const params = useParams();
   const router = useRouter();
+  const [localSearch, setLocalSearch] = useState(searchQuery);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalSearch(e.target.value);
+  };
+
+  const handleSearchSubmit = () => {
+    if (localSearch.trim() !== searchQuery) {
+      setSearchQuery(localSearch.trim());
+      setPage(1);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearchSubmit();
+    }
+  };
 
   return (
     <>
@@ -31,7 +61,20 @@ export const UsersClient: React.FC<UsersClientProps> = ({ data, page, setPage, t
         </Button>
       </div>
       <Separator />
-      <DataTable searchKey="fullName" columns={columns} data={data} />
+      <div className="mt-4 mb-2 flex items-center gap-2">
+        <input
+          type="text"
+          placeholder="Search users Global (Press Enter or click Search)"
+          value={localSearch}
+          onChange={handleSearchChange}
+          onKeyDown={handleKeyDown}
+          className="flex-grow p-2 text-white bg-black border border-gray-600 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <Button onClick={handleSearchSubmit} className="flex-shrink-0">
+          <Search className="w-4 h-4 mr-2" /> Search
+        </Button>
+      </div>
+      <DataTable searchKey="fullName" columns={columns} data={data} /> {/* Keep searchKey for client-side filtering on current page */}
       <div className="flex items-center justify-between py-4 space-x-2">
         <Button variant="outline" size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
           Previous

@@ -6,6 +6,7 @@ import { CellAction } from "./cell-action";
 export type UserColumn = {
   id: string;
   fullName: string;
+  shopName: string;
   phoneNumber: string;
   role: string;
   fcmToken: string;
@@ -23,6 +24,10 @@ export const columns: ColumnDef<any>[] = [
     accessorKey: "fullName",
     header: "Full Name",
   },
+  {
+    accessorKey: "shopName",
+    header: "Shop Name",
+  },  
   {
     accessorKey: "phoneNumber",
     header: "Phone Number",

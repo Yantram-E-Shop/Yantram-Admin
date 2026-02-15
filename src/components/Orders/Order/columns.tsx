@@ -40,6 +40,14 @@ export const columns: ColumnDef<any>[] = [
     header: "Status",
   },
   {
+    accessorKey: "isTaxInvoiceGenerated",
+    header: "Tax Invoice Generated",
+    cell: ({ row }) => {
+      const isTaxInvoiceGenerated = row.getValue("isTaxInvoiceGenerated");
+      return isTaxInvoiceGenerated ? "Yes" : "No";
+    },
+  },
+  {
     accessorKey: "createdAt",
     header: "Date",
   },

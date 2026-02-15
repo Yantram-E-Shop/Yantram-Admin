@@ -17,6 +17,7 @@ const Orders = () => {
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
 
+  const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   const openModal = () => setIsModalOpen(true);
@@ -26,7 +27,7 @@ const Orders = () => {
     const fecthOrders = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`/api/v1/orders/admin/all?page=${page}&limit=10000`, {
+        const response = await axios.get(`/api/v1/orders/admin/all?page=${page}&limit=10000&searchQuery=${searchQuery}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -39,11 +40,11 @@ const Orders = () => {
         console.error("Error fetching orders:", error);
       } finally {
         setTimeout(() => {setLoading(false)}, 200);
-      }
+      } 
     };
 
     fecthOrders();
-  }, [accessToken, page]);
+  }, [accessToken, page , searchQuery]);
 
 
   const formattedOrders = orders.map((item) => ({
@@ -55,6 +56,7 @@ const Orders = () => {
     shopName: item.address?.shopName || "N/A",
     phoneNumber: item.address?.phoneNumber || "N/A",
     status: item.status,
+    isTaxInvoiceGenerated: !!item.invoiceDocument,
     createdAt: format(new Date(item.createdAt), "MMMM do, yyyy"),
     id : item._id,
   }));
@@ -73,6 +75,8 @@ const Orders = () => {
           data={formattedOrders}
           page={page}
           setPage={setPage}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
           totalPages={totalPages}
           totalOrders={totalOrders}
         />

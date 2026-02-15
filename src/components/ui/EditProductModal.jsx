@@ -389,6 +389,7 @@ import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 import { BASE_URL } from "@/api/axios";
+import { toast } from "react-hot-toast";
 
 const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
   const [step, setStep] = useState(1); // Step 1: Product details, Step 2: Image upload
@@ -425,7 +426,6 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
   };
   const [images, setImages] = useState([]); // To store multiple images (new ones)
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state for submit
-  const [feedback, setFeedback] = useState({ type: "", message: "" });
 
   const [categories, setCategories] = useState([]); // To store categories from API
   const [attributes, setAttributes] = useState([]); // To store attributes from API
@@ -450,10 +450,7 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
           setSelectedImages(product.images || []); // Load previously uploaded images
         } catch (error) {
           console.error("Error fetching product data:", error);
-          setFeedback({
-            type: "error",
-            message: "Failed to fetch product data.",
-          });
+          toast.error("Failed to fetch product data.");
         }
       };
       fetchProductData();
@@ -468,7 +465,7 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
         setCategories(response.data.data); // Use the categories data from the API response
       } catch (error) {
         console.error("Error fetching categories:", error);
-        setFeedback({ type: "error", message: "Failed to fetch categories." });
+        toast.error("Failed to fetch categories.");
       }
     };
 
@@ -487,10 +484,7 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
         setAttributes(response.data.data);
       } catch (error) {
         console.error("Error fetching attributes:", error);
-        setFeedback({
-          type: "error",
-          message: "Failed to fetch attributes.",
-        });
+        toast.error("Failed to fetch attributes.");
       }
     };
 
@@ -527,7 +521,6 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
 
   const handleNextStep = async () => {
     setIsSubmitting(true);
-    setFeedback({ type: "", message: "" });
     try {
       
       const response = await axios.put(
@@ -540,16 +533,10 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
         }
       );
       setStep(2);
-      setFeedback({
-        type: "success",
-        message: "Product updated successfully!",
-      });
+      toast.success("Product updated successfully!");
     } catch (error) {
       console.error("Error updating product:", error);
-      setFeedback({
-        type: "error",
-        message: "Failed to update product. Please try again.",
-      });
+      toast.error("Failed to update product. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -568,7 +555,6 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
 
   const handleSubmitImages = async () => {
     setIsSubmitting(true);
-    setFeedback({ type: "", message: "" });
   
     try {
       const formData = new FormData();
@@ -628,13 +614,11 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
       });
   
       onProductUpdated();
+      toast.success("Images updated successfully!");
       onClose();
     } catch (error) {
       console.error("Error uploading images:", error);
-      setFeedback({
-        type: "error",
-        message: "Failed to upload images. Please try again.",
-      });
+      toast.error("Failed to upload images. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -660,15 +644,6 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} style={modalStyles}>
-      {feedback.message && (
-        <p
-          className={`mb-4 ${
-            feedback.type === "error" ? "text-red-500" : "text-green-500"
-          }`}
-        >
-          {feedback.message}
-        </p>
-      )}
 
       {step === 1 && (
         <div>

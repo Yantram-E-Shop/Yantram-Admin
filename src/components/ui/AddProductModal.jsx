@@ -4,6 +4,7 @@ import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 import { BASE_URL } from "@/api/axios";
+import { toast } from "react-hot-toast";
 
 const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
   const [step, setStep] = useState(1); // Step 1: Product details, Step 2: Image upload
@@ -40,7 +41,6 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
   const [productId, setProductId] = useState(null); // To store the created product ID
   const [images, setImages] = useState([]); // To store multiple images
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state for submit
-  const [feedback, setFeedback] = useState({ type: "", message: "" });
 
   const [categories, setCategories] = useState([]); // To store categories from API
   const [attributes, setAttributes] = useState([]); // To store attributes from API
@@ -72,7 +72,7 @@ const handleAttributeChange = (index, field, value) => {
         setCategories(response.data.data); // Use the categories data from the API response
       } catch (error) {
         console.error("Error fetching categories:", error);
-        setFeedback({ type: "error", message: "Failed to fetch categories." });
+        toast.error("Failed to fetch categories.");
       }
     };
 
@@ -92,10 +92,7 @@ const handleAttributeChange = (index, field, value) => {
         setAttributes(response.data.data);
       } catch (error) {
         console.error("Error fetching attributes:", error);
-        setFeedback({
-          type: "error",
-          message: "Failed to fetch attributes.",
-        });
+        toast.error("Failed to fetch attributes.");
       }
     };
 
@@ -128,7 +125,6 @@ const handleAttributeChange = (index, field, value) => {
 
   const handleNextStep = async () => {
     setIsSubmitting(true);
-    setFeedback({ type: "", message: "" });
     try {
       // Step 1: Submit product data
       const response = await axios.post(
@@ -143,17 +139,11 @@ const handleAttributeChange = (index, field, value) => {
       const createdProductId = response.data.data._id;
       setProductId(createdProductId); // Store product ID for image upload
       setStep(2); // Proceed to the next step for image upload
-      setFeedback({
-        type: "success",
-        message: "Product created successfully!",
-      });
+      toast.success("Product created successfully!");
       resetForm();
     } catch (error) {
       console.error("Error creating product:", error);
-      setFeedback({
-        type: "error",
-        message: "Failed to create product. Please try again.",
-      });
+      toast.error("Failed to create product. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -173,7 +163,6 @@ const handleAttributeChange = (index, field, value) => {
 
   const handleSubmitImages = async () => {
     setIsSubmitting(true);
-    setFeedback({ type: "", message: "" });
 
      console.log("Submitting product data:", productData);
      
@@ -191,17 +180,11 @@ const handleAttributeChange = (index, field, value) => {
 
       onProductAdded();
       setStep(1); // Reset the step to 1 for the next product
-      setFeedback({
-        type: "",
-        message: "",
-      });
+      toast.success("Images uploaded successfully!");
       onClose(); // Close the modal after both steps are done
     } catch (error) {
       console.error("Error uploading images:", error);
-      setFeedback({
-        type: "error",
-        message: "Failed to upload images. Please try again.",
-      });
+      toast.error("Failed to upload images. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -231,15 +214,6 @@ const handleAttributeChange = (index, field, value) => {
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} style={modalStyles}>
-      {feedback.message && (
-        <p
-          className={`mb-4 ${
-            feedback.type === "error" ? "text-red-500" : "text-green-500"
-          }`}
-        >
-          {feedback.message}
-        </p>
-      )}
 
       {step === 1 && (
         <div>

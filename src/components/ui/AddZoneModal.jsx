@@ -4,6 +4,7 @@ import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 import { BASE_URL } from "@/api/axios";
+import { toast } from "react-hot-toast";
 
 // List of all Indian states
 const indianStates = [
@@ -25,7 +26,6 @@ const AddZoneModal = ({ isOpen, onClose, onZoneAdded, existingZones, zoneToEdit 
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState({ type: "", message: "" });
 
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
@@ -43,7 +43,6 @@ const AddZoneModal = ({ isOpen, onClose, onZoneAdded, existingZones, zoneToEdit 
       setZoneData({ name: "", states: [], shippingFee: "" });
     }
 
-    setFeedback({ type: "", message: "" });
   }, [zoneToEdit, isOpen]);
 
   const getUsedStates = () => {
@@ -76,15 +75,11 @@ const AddZoneModal = ({ isOpen, onClose, onZoneAdded, existingZones, zoneToEdit 
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    setFeedback({ type: "", message: "" });
 
     const { name, states, shippingFee } = zoneData;
 
     if (!name || states.length === 0 || !shippingFee || isNaN(shippingFee)) {
-      setFeedback({
-        type: "error",
-        message: "Zone name, at least one state, and valid shipping fee are required.",
-      });
+      toast.error("Zone name, at least one state, and valid shipping fee are required.");
       setIsSubmitting(false);
       return;
     }
@@ -106,7 +101,7 @@ const AddZoneModal = ({ isOpen, onClose, onZoneAdded, existingZones, zoneToEdit 
             Authorization: `Bearer ${accessToken}`,
           },
         });
-        setFeedback({ type: "success", message: "Zone updated successfully!" });
+        toast.success("Zone updated successfully!");
       } else {
         // Create new zone
         response = await axios.post(`${BASE_URL}/zone`, payload, {
@@ -115,7 +110,7 @@ const AddZoneModal = ({ isOpen, onClose, onZoneAdded, existingZones, zoneToEdit 
             Authorization: `Bearer ${accessToken}`,
           },
         });
-        setFeedback({ type: "success", message: "Zone created successfully!" });
+        toast.success("Zone created successfully!");
       }
 
       onZoneAdded(response.data.data);
@@ -123,10 +118,7 @@ const AddZoneModal = ({ isOpen, onClose, onZoneAdded, existingZones, zoneToEdit 
       setZoneData({ name: "", states: [], shippingFee: "" });
     } catch (error) {
       console.error("Error submitting zone:", error);
-      setFeedback({
-        type: "error",
-        message: error?.response?.data?.message || "Failed to submit zone.",
-      });
+      toast.error(error?.response?.data?.message || "Failed to submit zone.");
     } finally {
       setIsSubmitting(false);
     }
@@ -151,11 +143,6 @@ const AddZoneModal = ({ isOpen, onClose, onZoneAdded, existingZones, zoneToEdit 
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} style={modalStyles}>
-      {feedback.message && (
-        <p className={`mb-4 ${feedback.type === "error" ? "text-red-500" : "text-green-500"}`}>
-          {feedback.message}
-        </p>
-      )}
 
       <h2 className="text-black text-xl mb-4">
         {zoneToEdit ? "Edit Zone" : "Add Zone"}

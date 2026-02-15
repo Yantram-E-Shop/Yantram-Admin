@@ -4,6 +4,7 @@ import React, { useEffect, useState, useContext } from "react";
 import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
+import { toast } from "react-hot-toast";
 
 const AddSubcategoryModal = ({
   isOpen,
@@ -18,7 +19,6 @@ const AddSubcategoryModal = ({
   const [logo, setLogo] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null); // ✨ Preview
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState({ type: "", message: "" });
 
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
@@ -69,12 +69,11 @@ const AddSubcategoryModal = ({
 
   const handleSubmit = async () => {
     if (!selectedCategoryId || !subcategoryName ){
-      setFeedback({ type: "error", message: "All fields are required" });
+      toast.error("All fields are required");
       return;
     }
 
     setIsSubmitting(true);
-    setFeedback({ type: "", message: "" });
 
     try {
       let subcategoryId;
@@ -131,19 +130,13 @@ const AddSubcategoryModal = ({
         }
       }
 
-      setFeedback({
-        type: "success",
-        message: `Subcategory ${subcategoryToEdit ? "updated" : "created"} successfully!`,
-      });
+      toast.success(`Subcategory ${subcategoryToEdit ? "updated" : "created"} successfully!`);
       onSubcategoryAdded();
       resetForm();
       onClose();
     } catch (error) {
       console.error("Error:", error);
-      setFeedback({
-        type: "error",
-        message: `Failed to ${subcategoryToEdit ? "update" : "add"} subcategory.`,
-      });
+      toast.error(`Failed to ${subcategoryToEdit ? "update" : "add"} subcategory.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -176,15 +169,6 @@ const AddSubcategoryModal = ({
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} style={modalStyles}>
-      {feedback.message && (
-        <p
-          className={`mb-4 ${
-            feedback.type === "error" ? "text-red-500" : "text-green-500"
-          }`}
-        >
-          {feedback.message}
-        </p>
-      )}
       <h2 className="text-white text-xl mb-4">
         {subcategoryToEdit ? "Edit Subcategory" : "Add New Subcategory"}
       </h2>

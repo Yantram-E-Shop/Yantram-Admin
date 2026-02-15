@@ -5,6 +5,7 @@ import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 import { BASE_URL } from "@/api/axios";
+import { toast } from "react-hot-toast";
 
 const UpdateCouponModal = ({
   isOpen,
@@ -86,8 +87,10 @@ const UpdateCouponModal = ({
 
       console.log("Coupon updated:", response.data);
       onCouponUpdated(); // Trigger the callback function to refresh data
+      toast.success("Coupon updated successfully!");
     } catch (error) {
       console.error("Error updating coupon:", error);
+      toast.error("Failed to update coupon.");
     } finally {
       setIsSubmitting(false);
       onClose(); // Close the modal

@@ -4,6 +4,7 @@ import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 import { BASE_URL } from "@/api/axios";
+import { toast } from "react-hot-toast";
 
 const UpdateMinOrderValue = ({ isOpen, onClose}) => {
     const [orderData, setOrderData] = useState({
@@ -11,7 +12,6 @@ const UpdateMinOrderValue = ({ isOpen, onClose}) => {
     });
   
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [feedback, setFeedback] = useState({ type: "", message: "" });
   
     const authContext = useContext(AuthContext);
     const accessToken = authContext?.accessToken;
@@ -30,10 +30,7 @@ const UpdateMinOrderValue = ({ isOpen, onClose}) => {
             console.log(orderData);
           } catch (error) {
             console.error("Error fetching min. order value:", error);
-            setFeedback({
-              type: "error",
-              message: "Failed to fetch min. order value.",
-            });
+            toast.error("Failed to fetch min. order value.");
           };
         }
         fetchMinOrderValue();
@@ -48,16 +45,12 @@ const UpdateMinOrderValue = ({ isOpen, onClose}) => {
     // Handle form submission
     const handleSubmit = async () => {
       setIsSubmitting(true);
-      setFeedback({ type: "", message: "" });
   
       try {
         const payLoad = {"minOrderValue": orderData.minOrderValue};
 
         if (!orderData.minOrderValue) {
-            setFeedback({
-              type: "error",
-              message: "Please provide a minOrderValue.",
-            });
+            toast.error("Please provide a minOrderValue.");
             return;
           }
 
@@ -68,20 +61,14 @@ const UpdateMinOrderValue = ({ isOpen, onClose}) => {
           },
         });
   
-        setFeedback({
-          type: "success",
-          message: "Min Order value updated successfully!",
-        });
+        toast.success("Min Order value updated successfully!");
         onClose(); // Close the modal after submission
         setOrderData({
           minOrderValue: "",
         });
       } catch (error) {
         console.error("Error updating min order value:", error);
-        setFeedback({
-          type: "error",
-          message: "Failed to update min order value.",
-        });
+        toast.error("Failed to update min order value.");
       } finally {
         setIsSubmitting(false);
       }
@@ -106,15 +93,6 @@ const UpdateMinOrderValue = ({ isOpen, onClose}) => {
   
     return (
       <Modal isOpen={isOpen} onRequestClose={onClose} style={modalStyles}>
-        {feedback.message && (
-          <p
-            className={`mb-4 ${
-              feedback.type === "error" ? "text-red-500" : "text-green-500"
-            }`}
-          >
-            {feedback.message}
-          </p>
-        )}
   
         <h2 className="text-black text-xl mb-4">Update Order Status</h2>
   

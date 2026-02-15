@@ -3,13 +3,13 @@ import React, { useEffect, useState, useContext } from "react";
 import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
+import { toast } from "react-hot-toast";
 
 const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit }) => {
   const [categoryName, setCategoryName] = useState("");
   const [preference, setPreference] = useState(1);
   const [logo, setLogo] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState({ type: "", message: "" });
   const [logoPreview, setLogoPreview] = useState(null); // For logo preview
 
   const authContext = useContext(AuthContext);
@@ -46,7 +46,6 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit }) 
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    setFeedback({ type: "", message: "" });
 
     try {
       let response;
@@ -101,21 +100,15 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit }) 
       }
     }
 
-      setFeedback({
-        type: "success",
-        message: categoryToEdit
+      toast.success(categoryToEdit
           ? "Category updated successfully!"
-          : "Category created successfully with logo!",
-      });
+          : "Category created successfully with logo!");
       onCategoryAdded(); // Trigger the callback function to update the category list
       resetForm();
       onClose(); // Close the modal
     } catch (error) {
       console.error("Error adding/updating category:", error);
-      setFeedback({
-        type: "error",
-        message: "Failed to add/update category. Please try again.",
-      });
+      toast.error("Failed to add/update category. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -147,15 +140,6 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit }) 
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} style={modalStyles}>
-      {feedback.message && (
-        <p
-          className={`mb-4 ${
-            feedback.type === "error" ? "text-red-500" : "text-green-500"
-          }`}
-        >
-          {feedback.message}
-        </p>
-      )}
       <h2 className="text-white text-xl mb-4">
         {categoryToEdit ? "Update Category" : "Add New Category"}
       </h2>

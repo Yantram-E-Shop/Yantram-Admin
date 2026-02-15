@@ -3,12 +3,12 @@ import React, { useState, useContext } from "react";
 import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
+import { toast } from "react-hot-toast";
 
 const AddAttributeModal = ({ isOpen, onClose, onAttributeAdded }) => {
   const [name, setName] = useState("");
   const [values, setValues] = useState([""]); // Start with an empty array with one value input
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState({ type: "", message: "" });
 
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
@@ -40,12 +40,11 @@ const AddAttributeModal = ({ isOpen, onClose, onAttributeAdded }) => {
   const handleSubmit = async () => {
     // Validate that all required fields are filled
     if (!name.trim() || values.some((value) => !value.trim())) {
-      setFeedback({ type: "error", message: "Please fill all fields." });
+      toast.error("Please fill all fields.");
       return;
     }
 
     setIsSubmitting(true);
-    setFeedback({ type: "", message: "" });
 
     const attributeData = {
       name: name.trim(),
@@ -60,19 +59,13 @@ const AddAttributeModal = ({ isOpen, onClose, onAttributeAdded }) => {
         },
       });
 
-      setFeedback({
-        type: "success",
-        message: "Attribute added successfully!",
-      });
+      toast.success("Attribute added successfully!");
       onAttributeAdded(); // Trigger the callback function
       resetForm();
       onClose(); // Close the modal
     } catch (error) {
       console.error("Error adding attribute:", error);
-      setFeedback({
-        type: "error",
-        message: "Failed to add attribute. Please try again.",
-      });
+      toast.error("Failed to add attribute. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -104,15 +97,6 @@ const AddAttributeModal = ({ isOpen, onClose, onAttributeAdded }) => {
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} style={modalStyles}>
-      {feedback.message && (
-        <p
-          className={`mb-4 ${
-            feedback.type === "error" ? "text-red-500" : "text-green-500"
-          }`}
-        >
-          {feedback.message}
-        </p>
-      )}
 
       <h2 className="text-black text-xl mb-4">Add New Attribute</h2>
 

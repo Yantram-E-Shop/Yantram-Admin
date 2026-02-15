@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react"; // Added Search
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
@@ -21,6 +21,8 @@ interface OrdersClientProps {
   data: any[];
   page: number;
   setPage: (page: number) => void;
+  searchQuery: string;
+  setSearchQuery: (searchQuery: string) => void;
   totalPages: number;
   totalOrders: number;
 }
@@ -31,6 +33,8 @@ export const OrdersClient: React.FC<OrdersClientProps> = ({
   data,
   page,
   setPage,
+  searchQuery,
+  setSearchQuery,
   totalPages,
   totalOrders
 }) => {
@@ -39,6 +43,28 @@ export const OrdersClient: React.FC<OrdersClientProps> = ({
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
   const [selectedFilter, setSelectedFilter] = useState("All");
+  const [localSearch, setLocalSearch] = useState(searchQuery);
+
+  // Only updates local state
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocalSearch(value);
+  };
+
+  // Function to execute the search on backend
+  const handleSearchSubmit = () => {
+    if (localSearch.trim() !== searchQuery) {
+      setSearchQuery(localSearch.trim());
+      setPage(1); // Reset to first page when new search is triggered
+    }
+  };
+
+  // Function to handle 'Enter' key press
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearchSubmit();
+    }
+  };
 
 
 const handleExportToExcel = async () => {
@@ -76,7 +102,7 @@ const handleExportToExcel = async () => {
           "Product SKU": item.product?.SKU,
           "Product": item.product?.title,
           "Quantity": item.quantity,
-          "Product Price/Unit": item.product?.sellingPrice[0].pricePerUnit,
+          "Product Price/Unit": item.totalPrice/item.quantity,
           "Order Cost": o.paymentInfo?.amount,
           "Shipping Cost": o.paymentInfo?.shippingCost,
           "Total Order Cost": o.paymentInfo?.totalamount,
@@ -158,8 +184,22 @@ const getFilteredOrders = async() => {
       </Button>
       </div>
       </div>
-
       <Separator />
+
+      {/* 🔍 Modified Search Input with Button */}
+      <div className="mt-4 mb-2 flex items-center gap-2">
+        <input
+          type="text"
+          placeholder="Search orders Global (Press Enter or click Search)"
+          value={localSearch}
+          onChange={handleSearchChange}
+          onKeyDown={handleKeyDown} // Listen for Enter key
+          className="flex-grow p-2 text-white bg-black border border-gray-600 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <Button onClick={handleSearchSubmit} className="flex-shrink-0">
+          <Search className="w-4 h-4 mr-2" /> Search
+        </Button>
+      </div>
       <DataTable searchKey="orderId" columns={columns} data={data} />
 
       <div className="flex items-center justify-between py-4 space-x-2">

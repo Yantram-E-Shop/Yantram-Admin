@@ -4,6 +4,7 @@ import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 import { BASE_URL } from "@/api/axios";
+import { toast } from "react-hot-toast";
 
 const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
   const [bannerData, setBannerData] = useState({
@@ -20,7 +21,6 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
   const [subcategories, setSubcategories] = useState([]);
   const [allAttributes, setAllAttributes] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState({ type: "", message: "" });
 
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
@@ -109,15 +109,11 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
 
   const handleSubmit = async () => {
     if (!isMandatoryFieldsFilled()) {
-      setFeedback({ 
-        type: "error", 
-        message: "Title, Preference, Description, and Image are mandatory fields." 
-      });
+      toast.error("Title, Preference, Description, and Image are mandatory fields.");
       return;
     }
 
     setIsSubmitting(true);
-    setFeedback({ type: "", message: "" });
 
     try {
       const formData = new FormData();
@@ -136,7 +132,7 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
         },
       });
 
-      setFeedback({ type: "success", message: "Banner created successfully!" });
+      toast.success("Banner created successfully!");
       onBannerAdded(response.data.data);
       onClose();
 
@@ -151,7 +147,7 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
       });
     } catch (error) {
       console.error("Error creating banner:", error);
-      setFeedback({ type: "error", message: "Failed to create banner." });
+      toast.error("Failed to create banner.");
     } finally {
       setIsSubmitting(false);
     }
@@ -178,11 +174,6 @@ const AddBannerModal = ({ isOpen, onClose, onBannerAdded }) => {
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} style={modalStyles}>
-      {feedback.message && (
-        <p className={`mb-4 ${feedback.type === "error" ? "text-red-500" : "text-green-500"}`}>
-          {feedback.message}
-        </p>
-      )}
 
       <h2 className="text-black text-lg mb-3">Add Banner</h2>
 

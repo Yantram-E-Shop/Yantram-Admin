@@ -81,6 +81,9 @@ const UserDetails = () => {
         userDetails.addresses.map((address: any, index: number) => (
           <div key={index} className="border p-4 mt-2 rounded-md">
             <p>
+              <strong>Shop Name:</strong> {address.shopName}
+            </p>
+            <p>
               <strong>Full Address:</strong> {address.fullAddress}
             </p>
             <p>
@@ -127,7 +130,7 @@ const UserDetails = () => {
               <strong>Shipping Partner:</strong> {order.shippingPartner}
             </p>
             <p>
-              <strong>Total Price:</strong> ${order.totalPrice}
+              <strong>Total Price:</strong> ₹{order.totalPrice}
             </p>
             <p>
               <strong>Order Date:</strong>{" "}
@@ -148,7 +151,7 @@ const UserDetails = () => {
                     <strong>Quantity:</strong> {item.quantity}
                   </p>
                   <p>
-                    <strong>Price:</strong> ${item.totalPrice}
+                    <strong>Price:</strong> ₹{item.totalPrice}
                   </p>
                 </li>
               ))}
@@ -172,7 +175,7 @@ const UserDetails = () => {
                 <strong>Quantity:</strong> {item.quantity}
               </p>
               <p>
-                <strong>Total Price:</strong> ${item.totalPrice}
+                <strong>Total Price:</strong> ₹{item.totalPrice}
               </p>
             </li>
           ))}

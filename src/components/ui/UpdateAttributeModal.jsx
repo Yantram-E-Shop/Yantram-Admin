@@ -18,7 +18,6 @@ const UpdateAttributeModal = ({
   const [loading, setLoading] = useState(false);
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
-  const [feedback, setFeedback] = useState({ type: "", message: "" });
 
  useEffect(() => {
    if (isOpen) {
@@ -28,7 +27,6 @@ const UpdateAttributeModal = ({
          ? [...new Set(attributeData.values)]
          : []
      );
-     setFeedback({ type: "", message: "" }); // Reset feedback
    }
  }, [isOpen, attributeData]);
 
@@ -54,7 +52,6 @@ const UpdateAttributeModal = ({
   // Handle form submission
   const handleSubmit = async () => {
     setLoading(true);
-    setFeedback({ type: "", message: "" }); // Reset feedback
     try {
       await axios.put(
         `/api/v1/attributes/${attributeData._id}/add`,
@@ -70,10 +67,7 @@ const UpdateAttributeModal = ({
       onClose(); // Close modal after success
     } catch (error) {
       console.error("Error updating attribute values:", error);
-      setFeedback({
-        type: "error",
-        message: "Failed to update attribute values. Please try again.",
-      });
+      toast.error("Failed to update attribute values. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -103,15 +97,6 @@ const UpdateAttributeModal = ({
       contentLabel="Update Attribute"
       style={modalStyles}
     >
-      {feedback.message && (
-        <p
-          className={`mb-4 ${
-            feedback.type === "error" ? "text-red-500" : "text-green-500"
-          }`}
-        >
-          {feedback.message}
-        </p>
-      )}
       <h2 className="text-black text-xl mb-4">Update Attribute Values</h2>
 
       {values.map((value, index) => (

@@ -4,6 +4,7 @@ import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 import { BASE_URL } from "@/api/axios";
+import { toast } from "react-hot-toast";
 
 const AddFaqModal = ({ isOpen, onClose, onFaqAdded, data = null }) => {
   const [FaqData, setFaqData] = useState({
@@ -12,7 +13,6 @@ const AddFaqModal = ({ isOpen, onClose, onFaqAdded, data = null }) => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState({ type: "", message: "" });
 
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
@@ -43,7 +43,6 @@ const AddFaqModal = ({ isOpen, onClose, onFaqAdded, data = null }) => {
   // Handle form submission
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    setFeedback({ type: "", message: "" });
 
     try {
       const payload = {
@@ -60,10 +59,7 @@ const AddFaqModal = ({ isOpen, onClose, onFaqAdded, data = null }) => {
             Authorization: `Bearer ${accessToken}`,
           },
         });
-        setFeedback({
-          type: "success",
-          message: "Faq updated successfully!",
-        });
+        toast.success("Faq updated successfully!");
       } else {
         // Create new FAQ
         response = await axios.post(`${BASE_URL}/faqs/add`, payload, {
@@ -72,10 +68,7 @@ const AddFaqModal = ({ isOpen, onClose, onFaqAdded, data = null }) => {
             Authorization: `Bearer ${accessToken}`,
           },
         });
-        setFeedback({
-          type: "success",
-          message: "Faq created successfully!",
-        });
+        toast.success("Faq created successfully!");
       }
 
       onFaqAdded(response.data.data); // Pass the new/updated FAQ data back to the parent component
@@ -86,10 +79,7 @@ const AddFaqModal = ({ isOpen, onClose, onFaqAdded, data = null }) => {
       });
     } catch (error) {
       console.error("Error saving Faq:", error);
-      setFeedback({
-        type: "error",
-        message: isEditMode ? "Failed to update Faq. Please try again." : "Failed to create Faq. Please try again.",
-      });
+      toast.error(isEditMode ? "Failed to update Faq. Please try again." : "Failed to create Faq. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -114,15 +104,6 @@ const AddFaqModal = ({ isOpen, onClose, onFaqAdded, data = null }) => {
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} style={modalStyles}>
-      {feedback.message && (
-        <p
-          className={`mb-4 ${
-            feedback.type === "error" ? "text-red-500" : "text-green-500"
-          }`}
-        >
-          {feedback.message}
-        </p>
-      )}
 
       <h2 className="text-black text-xl mb-4">{isEditMode ? "Edit Faq" : "Add Faq"}</h2>
 
@@ -136,8 +117,7 @@ const AddFaqModal = ({ isOpen, onClose, onFaqAdded, data = null }) => {
         className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
       />
        {/* Name Input */}
-       <input
-        type="text"
+       <textarea
         name="ans"
         placeholder="Add Answer"
         value={FaqData.ans}

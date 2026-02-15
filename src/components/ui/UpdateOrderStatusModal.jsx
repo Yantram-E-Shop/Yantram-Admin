@@ -4,13 +4,12 @@ import Modal from "react-modal";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
 import { BASE_URL } from "@/api/axios";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate }) => {
   const [order, setOrder] = useState(null);
   const [orderData, setOrderData] = useState({ status: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState({ type: "", message: "" });
   const [shippedQuantities, setShippedQuantities] = useState({});
   const [packageInfo, setPackageInfo] = useState({
     shippingPartner: "",
@@ -37,6 +36,8 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
         .then((res) => {
           const fetchedOrder = res.data.data?.order;
           setOrder(fetchedOrder);
+          setOrderData({ status: fetchedOrder.status });
+
           console.log(fetchedOrder);
 
           const defaultShipped = {};
@@ -83,11 +84,11 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
       // 3) If there are multiple items and quantity is 0, remove the item
       if (updatedItems.length > 1) {
         updatedItems.splice(index, 1);
-        toast.info(`Item '${itemToUpdate.product?.title}' removed from order.`);
+        toast(`Item '${itemToUpdate.product?.title}' removed from order.`, { icon: "ℹ️" });
       } else {
         // 2) If it's the only item and quantity is 0, mark for cancellation
         setOrderData((prev) => ({ ...prev, status: "Cancelled" }));
-        toast.warn("Order has been automatically marked as 'Cancelled' as the only item's quantity was set to 0.");
+        toast("Order has been automatically marked as 'Cancelled' as the only item's quantity was set to 0.", { icon: "⚠️" });
         // We stop here and let handleSubmit handle the cancellation logic for the single item case.
         return;
       }
@@ -120,10 +121,9 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    setFeedback({ type: "", message: "" });
 
     if (!orderData.status) {
-      setFeedback({ type: "error", message: "Please select a status." });
+      toast.error("Please select a status.");
       setIsSubmitting(false);
       return;
     }
@@ -140,7 +140,7 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
           // in handleQuantityChange. But if it somehow reaches here, force Cancelled.
           if (orderData.status !== "Cancelled") {
              setOrderData((prev) => ({ ...prev, status: "Cancelled" }));
-             toast.warn("Order forced to 'Cancelled' status as it has no items left.");
+             toast("Order forced to 'Cancelled' status as it has no items left.", { icon: "⚠️" });
           }
           // Proceed to "Cancelled" logic below.
           payload.status = "Cancelled";
@@ -187,7 +187,7 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
             },
           }
         );
-        toast.info("Order status updated to 'Cancelled'.");
+        toast("Order status updated to 'Cancelled'.", { icon: "ℹ️" });
         onOrderStatusupdate(response.data.data);
         onClose();
         setOrderData({ status: "" });
@@ -211,10 +211,7 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
             }
           );
 
-          setFeedback({
-            type: "success",
-            message: "Order status updated successfully!",
-          });
+          toast.success("Order status updated successfully!");
 
           onOrderStatusupdate(response.data.data);
           // The final PUT request handles the status update itself.
@@ -244,10 +241,7 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
       setPackageInfo({ waybill:"", length: "", breadth: "", height: "", weight: "" });
     } catch (error) {
       console.error("Error updating order status:", error);
-      setFeedback({
-        type: "error",
-        message: "Failed to update order status. Please try again.",
-      });
+      toast.error("Failed to update order status. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -290,15 +284,6 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} style={modalStyles}>
-      {feedback.message && (
-        <p
-          className={`mb-4 ${
-            feedback.type === "error" ? "text-red-500" : "text-green-500"
-          }`}
-        >
-          {feedback.message}
-        </p>
-      )}
 
       <h2 className="text-black text-xl mb-4">Update Order Status</h2>
 
