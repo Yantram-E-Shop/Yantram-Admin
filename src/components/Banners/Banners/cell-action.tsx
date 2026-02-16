@@ -1,14 +1,13 @@
 "use client";
 
 import axios from "axios";
-import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react"; // Keep Edit icon
 import { useParams, useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
-import { useContext, useState } from "react";
+import { useContext, useState } from "react"; // Keep useState
 import { toast } from "react-hot-toast";
 
 import { AlertModal } from "@/components/modals/alert-modal";
-import  EditProductModal  from "../../ui/EditProductModal.jsx"
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,16 +18,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import React from "react";
+import { BannerColumn } from "./columns"; // Import BannerColumn type
 
 interface CellActionProps {
-  data: any;
+  data: BannerColumn;
+  onOpenModal: (banner: BannerColumn) => void; // New prop for editing
 }
 
-export const CellAction: React.FC<CellActionProps> = ({ data }) => {
+export const CellAction: React.FC<CellActionProps> = ({ data, onOpenModal }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [selectedBanner, setSelectedBanner] = useState(null); // Track selected product
-
   const router = useRouter();
   const params = useParams();
   const authContext = useContext(AuthContext);
@@ -57,14 +56,6 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     toast.success("Banner ID copied to clipboard.");
   };
 
-  const handleOpenEditModal = () => {
-    setSelectedBanner(data); // Store selected product
-  };
-
-  const handleProductUpdated = () => {
-    router.refresh(); // Refresh product list
-  };
-
   return (
     <>
       {/* Delete Confirmation Modal */}
@@ -90,6 +81,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setOpen(true)}>
             <Trash className="w-4 h-4 mr-2" /> Delete
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onOpenModal(data)}>
+            <Edit className="w-4 h-4 mr-2" /> Edit
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

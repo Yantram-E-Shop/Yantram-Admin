@@ -11,7 +11,7 @@ export type BannerColumn = {
   createdAt: string;
 };
 
-export const columns: ColumnDef<BannerColumn>[] = [
+export const columns = (onOpenModal: (banner: BannerColumn) => void): ColumnDef<BannerColumn>[] => [
   {
     accessorKey: "_id",
     header: "ID",
@@ -34,6 +34,6 @@ export const columns: ColumnDef<BannerColumn>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <CellAction data={row.original} />,
+    cell: ({ row }) => <CellAction data={row.original} onOpenModal={onOpenModal} />,
   },
 ];

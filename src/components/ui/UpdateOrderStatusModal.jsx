@@ -431,12 +431,19 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
 
               {/* Package Fields */}
               <div className="grid grid-cols-2 gap-4 mt-4">
-                {["waybill", "length", "breadth", "height", "weight"].map((field) => (
-                  <div key={field}>
-                    <label className="block text-sm mb-1 capitalize">{field}</label>
+                {[{ name: "waybill", label: "Waybill", type: "text" },
+                  { name: "length", label: "Length (in cm)", type: "number" },
+                  { name: "breadth", label: "Breadth (in cm)", type: "number" },
+                  { name: "height", label: "Height (in cm)", type: "number" },
+                  { name: "weight", label: "Weight (in gm)", type: "number" },
+                ].map((field) => (
+                  <div key={field.name}>
+                    <label className="block text-sm mb-1 capitalize">
+                      {field.label}
+                    </label>
                     <input
-                      type="text"
-                      name={field}
+                      type={field.type}
+                      name={field.name}
                       className="w-full p-2 border rounded"
                       value={packageInfo[field]}
                       onChange={handlePackageInfoChange}

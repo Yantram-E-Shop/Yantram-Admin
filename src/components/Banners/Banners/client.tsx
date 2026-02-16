@@ -13,10 +13,11 @@ import React from "react";
 interface BannersClientProps {
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
+  onOpenModal: (banner?: BannerColumn) => void; // New prop for opening modal with optional banner data
   data: any;
 }
 
-export const BannersClient: React.FC<BannersClientProps> = ({ isModalOpen, setIsModalOpen, data }) => {
+export const BannersClient: React.FC<BannersClientProps> = ({ isModalOpen, setIsModalOpen, onOpenModal, data }) => {
   const params = useParams();
   const router = useRouter();
 
@@ -24,12 +25,12 @@ export const BannersClient: React.FC<BannersClientProps> = ({ isModalOpen, setIs
     <>
       <div className="flex items-center justify-between">
         <Heading title={`Banners`} description="Manage banners for your store" />
-        <Button onClick={() => { setIsModalOpen(true) }}>
+        <Button onClick={() => { onOpenModal() }}> {/* Call onOpenModal without arguments for adding */}
           <Plus className="w-4 h-4 mr-2" /> Add New
         </Button>
       </div >
       <Separator />
-      <DataTable searchKey="title" columns={columns} data={data} />
+      <DataTable searchKey="title" columns={columns(onOpenModal)} data={data} /> {/* Pass onOpenModal to columns */}
       <Heading title="API" description="API Calls for Banners" />
       <Separator />
       <ApiList entityName="banners" entityIdName="bannerId" />
