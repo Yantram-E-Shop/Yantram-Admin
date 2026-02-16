@@ -8,12 +8,12 @@ import SubcategoryAction from "./SubcategoryAction";
 
 // Adjusted type to match category data
 export type CategoryColumn = {
-  _id: string;
-  name: string; // Category name
-  preference: number; // Category preference
-  subcategories: { _id: string; name: string }[]; // Array of subcategories
-  createdAt: string;
-  updatedAt: string;
+    _id: string;
+    name: string; // Category name
+    preference: number; // Category preference
+    subcategories: { _id: string; name: string; preference: number }[];
+    createdAt: string;
+    updatedAt: string;
 };
 
 // Adjusted columns for category data
