@@ -86,7 +86,9 @@ const handleExportToExcel = async () => {
       });
 
       const o = res.data?.data?.order;
-      o.items.forEach((item: { product: { SKU: any; title: any; sellingPrice: { pricePerUnit: any; }[]; }; quantity: any; }) => {
+      o.items.forEach((item: {
+        totalPrice: any; product: { SKU: any; title: any; sellingPrice: { pricePerUnit: any; }[]; }; quantity: any; 
+}) => {
         detailedOrders.push({
           "Payment Method": o.paymentInfo?.mode || "N/A",
           "Date": format(new Date(o.createdAt), "yyyy-MM-dd"),

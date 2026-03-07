@@ -44,30 +44,31 @@ interface ProductUpdateRow {
 
 // Interface used for reading/processing Excel data
 interface ProductRow {
-  ID: string;
-  Attributes?: string;
-  Title: string;
-  Description?: string;
-  CategoryName?: string;
-  SubCategoryName?: string;
-  SKU: string;
-  ModelName?: string;
-  MinQuantity?: string | number;
-  HSN?: string;
-  Tax?: string;
-  Qty1?: string | number;
-  Price1?: string | number;
-  Qty2?: string | number;
-  Price2?: string | number;
-  Qty3?: string | number;
-  Price3?: string | number;
-  "Original Price"?: string | number;
-  "Available Quantity"?: string | number;
-  Status?: string;
-  IsFeatured?: string;
-  IsOffer?: string;
-  ProductCode?: string;
-  ImagePath?: string;
+    ID: string;
+    Attributes?: string;
+    Title: string;
+    Description?: string;
+    CategoryName?: string;
+    SubCategoryName?: string;
+    SKU: string;
+    ModelName?: string;
+    MinQuantity?: string | number;
+    HSN?: string;
+    Tax?: string;
+    Qty1?: string | number;
+    Price1?: string | number;
+    Qty2?: string | number;
+    Price2?: string | number;
+    Qty3?: string | number;
+    Price3?: string | number;
+    "Original Price"?: string | number;
+    "Available Quantity"?: string | number;
+    Status?: string;
+    IsFeatured?: string;
+    Preference?: string | number;
+    IsOffer?: string;
+    ProductCode?: string;
+    ImagePath?: string;
 }
 
 export const ProductsClient: React.FC<ProductsClientProps> = ({
