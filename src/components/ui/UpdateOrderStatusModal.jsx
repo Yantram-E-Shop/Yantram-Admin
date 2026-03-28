@@ -22,8 +22,21 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
     shipmentLink: "", // ✅ Added
   });
 
+  const allowedTransitions = {
+    "Order Placed": ["Confirmed", "Cancelled"],
+    "Confirmed": ["Shipping"],
+    "Shipping": ["Out for delivery", "Delivered", "Returned"],
+    "Out for delivery": ["Delivered", "Returned"],
+    "Delivered": ["Returned"],
+    "Returned": [],
+    "Cancelled": [],
+  };
+
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
+
+  const currentStatus = order?.status || "";
+  const availableStatuses = [currentStatus, ...(allowedTransitions[currentStatus] || [])];
 
   useEffect(() => {
     if (orderId && isOpen) {
@@ -124,6 +137,13 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
 
     if (!orderData.status) {
       toast.error("Please select a status.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Prevent updating with the same status
+    if (order && order.status === orderData.status) {
+      toast.error("The selected status is already the current status of the order.");
       setIsSubmitting(false);
       return;
     }
@@ -294,7 +314,7 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
         className="w-full mb-4 p-2 bg-gray-100 text-black rounded border border-gray-300"
       >
         <option value="">Select Order Status</option>
-        {orderStatusOptions.map((status) => (
+        {availableStatuses.map((status) => (
           <option key={status} value={status}>
             {status}
           </option>
