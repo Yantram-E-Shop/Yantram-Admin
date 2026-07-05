@@ -391,7 +391,6 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
             ].filter(e => e.minQuantity && e.pricePerUnit),
             availableQuantity: Number(row["Available Quantity"]) || 0,
             preference: Number(row["Preference"]) || 1,
-            soldQuantity: 0,
             isAvailable: row.Status === "Active",
             isFeatured: row.IsFeatured === "true" || false,
             isOffer: row.IsOffer === "true" || false,
