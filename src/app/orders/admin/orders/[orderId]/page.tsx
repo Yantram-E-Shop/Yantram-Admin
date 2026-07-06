@@ -272,19 +272,7 @@ const OrderDetails = () => {
                                 <strong>Product:</strong> {item?.product?.title}
                             </p>
                             <p>
-                                <strong>Quantity:</strong>{" "}
-                                <input
-                                    type="number"
-                                    min={1}
-                                    value={item.quantity}
-                                    onChange={(e) =>
-                                        handleQuantityChange(
-                                            index,
-                                            e.target.value
-                                        )
-                                    }
-                                    className="border px-2 py-1 rounded w-16 bg-black text-white"
-                                />
+                                <strong>Quantity:</strong> {item.quantity}
                             </p>
                             <p>
                                 <strong>Price:</strong> ₹
@@ -301,13 +289,6 @@ const OrderDetails = () => {
                 <p className="text-gray-500">No items found in this order.</p>
             )}
 
-            <button
-                className="mt-6 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-                onClick={handleUpdateOrder}
-                disabled={updating}
-            >
-                {updating ? "Updating..." : "Update Order"}
-            </button>
         </div>
     );
 };

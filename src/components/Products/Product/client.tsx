@@ -53,6 +53,7 @@ interface ProductRow {
     SKU: string;
     ModelName?: string;
     MinQuantity?: string | number;
+    MaxQuantity?: string | number;
     HSN?: string;
     Tax?: string;
     Qty1?: string | number;
@@ -176,6 +177,7 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
     "SKU": product.SKU,
     "ModelName": product.modelName || "",
     "MinQuantity": product.minQuantity?.toString() || "0",
+    "MaxQuantity": product.maxQuantity?.toString() || "",
     "HSN": product.HSN || "",
     "Tax": product.tax || "",
     "Original Price": product.originalPrice?.toString() || "0",
@@ -262,7 +264,8 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
             subCategory: subCategoryMap[(row.SubCategoryName || "").trim().toLowerCase()],
             SKU: row.SKU,
             modelName: row.ModelName || "",
-            minQuantity: Number(row.MinQuantity) || 0,
+            minQuantity: Number(row.MinQuantity) || 0,
+            maxQuantity: row.MaxQuantity ? Number(row.MaxQuantity) : null,
             HSN: row.HSN || "",
             tax: row.Tax || "",
             attributes,
@@ -379,7 +382,8 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
             subCategory: subCategoryMap[(row.SubCategoryName || "").trim().toLowerCase()],
             SKU: row.SKU,
             modelName: row.ModelName || "",
-            minQuantity: Number(row.MinQuantity) || 0,
+            minQuantity: Number(row.MinQuantity) || 0,
+            maxQuantity: row.MaxQuantity ? Number(row.MaxQuantity) : null,
             HSN: row.HSN || "",
             tax: row.Tax || "",
             attributes,

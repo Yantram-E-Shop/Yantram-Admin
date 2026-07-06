@@ -401,6 +401,7 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
     SKU: "",
     modelName: "",
     minQuantity:0,
+    maxQuantity: null,
     HSN: "",
     tax: "",
     attributes: [],
@@ -727,6 +728,14 @@ const EditProductModal = ({ isOpen, onClose, productId, onProductUpdated }) => {
             className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />
 
+          <input
+            type="number"
+            name="maxQuantity"
+            placeholder="Maximum Order Quantity (Optional)"
+            value={productData.maxQuantity === null ? "" : productData.maxQuantity}
+            onChange={handleInputChange}
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
+          />
 
           {/* HSN */}
           <input

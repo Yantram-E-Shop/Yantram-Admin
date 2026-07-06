@@ -152,7 +152,7 @@ const confirmDelete = async () => {
             <Edit className="w-4 h-4 mr-2" /> Manage Order 
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setAttachInvoiceOpen(true)}>
-          <Edit className="w-4 h-4 mr-2" /> Attach Tax Invoice
+          <Edit className="w-4 h-4 mr-2" /> Manage Tax Invoice
          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onDelete(data.id)}>
           <Trash className="w-4 h-4 mr-2 text-red-500" /> Delete Order

@@ -16,6 +16,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
     SKU: "",
     modelName: "",
     minQuantity:0,
+    maxQuantity: null,
     HSN: "",
     tax: "",
     attributes : [],
@@ -383,6 +384,15 @@ const handleAttributeChange = (index, field, value) => {
             name="minQuantity"
             placeholder="Minimum Order Quantity"
             value={productData.minQuantity === 0 ? "" : productData.minQuantity}
+            onChange={handleInputChange}
+            className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
+          />
+
+          <input
+            type="number"
+            name="maxQuantity"
+            placeholder="Maximum Order Quantity (Optional)"
+            value={productData.maxQuantity === null ? "" : productData.maxQuantity}
             onChange={handleInputChange}
             className="w-full mb-4 p-2 bg-gray-900 text-black rounded border border-gray-600"
           />

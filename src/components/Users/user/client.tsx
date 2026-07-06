@@ -2,6 +2,7 @@
 
 import { Plus, Search } from "lucide-react";
 import { useState } from "react";
+import * as XLSX from "xlsx";
 
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -52,13 +53,40 @@ export const UsersClient: React.FC<UsersClientProps> = ({
     }
   };
 
+  const handleExportToExcel = () => {
+    if (!data || data.length === 0) {
+      alert("No users to export.");
+      return;
+    }
+
+    const worksheetData = data.map((user) => ({
+      "Full Name": user.fullName,
+      "Shop Name": user.shopName,
+      "Phone Number": user.phoneNumber,
+      Role: user.role,
+      "Number Verified": user.numberVerified,
+      Status: user.state,
+      Date: user.createdAt,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    XLSX.writeFile(workbook, "users.xlsx");
+  };
+
   return (
     <>
       <div className="flex items-center justify-between">
         <Heading title={`Users (${totalUsers})`} description="Manage users of your platform" />
-        <Button onClick={() => router.push(`/users/new`)}>
-          <Plus className="w-4 h-4 mr-2" /> Add New
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleExportToExcel}>
+            Export to Excel
+          </Button>
+          <Button onClick={() => router.push(`/users/new`)}>
+            <Plus className="w-4 h-4 mr-2" /> Add New
+          </Button>
+        </div>
       </div>
       <Separator />
       <div className="mt-4 mb-2 flex items-center gap-2">

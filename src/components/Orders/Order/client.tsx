@@ -109,6 +109,7 @@ const handleExportToExcel = async () => {
           "Shipping Cost": o.paymentInfo?.shippingCost,
           "Total Order Cost": o.paymentInfo?.totalamount,
           "Status": o.status,
+          "Invoice Generated": o.invoiceDocument ? "Yes" : "No",
           });
       });
     }
