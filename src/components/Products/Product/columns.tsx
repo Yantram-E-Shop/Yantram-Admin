@@ -16,6 +16,7 @@ export type ProductColumn = {
   availableQuantity: string | number;
   preference: string | number;
   isAvailable: boolean;
+  imageUrls: string[];
   attributes: { attribute: string; value: string; _id: string }[];
 };
 

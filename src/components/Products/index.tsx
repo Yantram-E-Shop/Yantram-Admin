@@ -120,6 +120,7 @@ const Products = () => {
     soldQuantity: item.soldQuantity,
     createdAt: format(new Date(item.createdAt), "MMMM do, yyyy"),
     isAvailable: item.isAvailable,
+    imageUrls: item.imageUrls || [],
     availableQuantity: item.availableQuantity,
     preference: item?.preference || 1,
   }));
