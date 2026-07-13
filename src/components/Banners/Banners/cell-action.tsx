@@ -53,7 +53,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data, onOpenModal }) => 
 
   const onCopy = (id: string) => {
     navigator.clipboard.writeText(id);
-    toast.success("Banner ID copied to clipboard.");
+    toast.success("copied to clipboard.");
   };
 
   return (
@@ -84,6 +84,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data, onOpenModal }) => 
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onOpenModal(data)}>
             <Edit className="w-4 h-4 mr-2" /> Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onCopy(data.imageUrl)}>
+            <Copy className="w-4 h-4 mr-2" /> Copy Image URL
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -8,6 +8,7 @@ export type BannerColumn = {
   title: string;
   preference: number;
   Page: string;
+  imageUrl: string;
   createdAt: string;
 };
 
@@ -28,6 +29,7 @@ export const columns = (onOpenModal: (banner: BannerColumn) => void): ColumnDef<
     accessorKey: "pageName",
     header: "Description",
   },
+  
   {
     accessorKey: "createdAt",
     header: "Date",
