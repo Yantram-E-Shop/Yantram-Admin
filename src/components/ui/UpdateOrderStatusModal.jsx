@@ -25,7 +25,8 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
   const allowedTransitions = {
     "Order Placed": ["Confirmed", "Cancelled"],
     "Confirmed": ["Shipping"],
-    "Shipping": ["Out for delivery", "Delivered", "Returned"],
+    "Shipping": ["In Transit", "Out for delivery", "Delivered", "Returned"],
+    "In Transit": ["Out for delivery", "Delivered", "Returned"],
     "Out for delivery": ["Delivered", "Returned"],
     "Delivered": ["Returned"],
     "Returned": [],
@@ -288,6 +289,7 @@ const UpdateOrderStatusModal = ({ isOpen, onClose, orderId, onOrderStatusupdate 
     "Order Placed",
     "Confirmed",
     "Shipping",
+    "In Transit",
     "Out for delivery",
     "Returned",
     "Cancelled",

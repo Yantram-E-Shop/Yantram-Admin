@@ -167,33 +167,33 @@ const OrderDetails = () => {
             )}
 
 <h2 className="text-xl font-semibold mt-4">Shipment Info</h2>
-            {order.status === 'Shipping' ? (
+            {shippingDetail ? (
                 <div className="border p-4 rounded-md">
-             <p>
-                <strong>Status:</strong>{" "}
-                {shippingDetail?.status || "N/A"}
-            </p>
-            <p>
-                <strong>Location:</strong> {shippingDetail?.location}
-            </p>
-            <p>
-                <strong>LastUpdated :</strong> {shippingDetail?.lastUpdated}
-            </p>
-            <p>
-                <strong>Details:</strong> {shippingDetail?.instructions}
-            </p>
-            <p>
-  <strong>Tracking Link:</strong>{" "}
-  {order?.trackingLink ? (
-    <a href={order.trackingLink} target="_blank" rel="noopener noreferrer">
-      {order.trackingLink}
-    </a>
-  ) : (
-    "No tracking link"
-  )}
-</p>
+                    <p>
+                        <strong>Status:</strong>{" "}
+                        {shippingDetail?.status || "N/A"}
+                    </p>
+                    <p>
+                        <strong>Location:</strong> {shippingDetail?.location}
+                    </p>
+                    <p>
+                        <strong>LastUpdated :</strong> {shippingDetail?.lastUpdated}
+                    </p>
+                    <p>
+                        <strong>Details:</strong> {shippingDetail?.instructions}
+                    </p>
+                    <p>
+                        <strong>Tracking Link:</strong>{" "}
+                        {order?.trackingLink ? (
+                            <a href={order.trackingLink} target="_blank" rel="noopener noreferrer">
+                                {order.trackingLink}
+                            </a>
+                        ) : (
+                            "No tracking link"
+                        )}
+                    </p>
 
-        </div>
+                </div>
             ) : (
                 <p className="text-gray-500">No Shipment Info.</p>
             )}
