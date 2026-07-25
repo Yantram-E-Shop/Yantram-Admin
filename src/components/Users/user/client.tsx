@@ -60,13 +60,21 @@ export const UsersClient: React.FC<UsersClientProps> = ({
     }
 
     const worksheetData = data.map((user) => ({
+      "ID": user.id,
       "Full Name": user.fullName,
-      "Shop Name": user.shopName,
       "Phone Number": user.phoneNumber,
-      Role: user.role,
+      "Email": user.email,
+      "Shop Name": user.shopName,
+      "Full Address": user.address?.fullAddress,
+      "Landmark": user.address?.landmark,
+      "Pincode": user.address?.pincode,
+      "District": user.address?.district,
+      "State": user.address?.state,
+      "Fcm Token": user.fcmToken,
+      "Role": user.role,
       "Number Verified": user.numberVerified,
-      Status: user.state,
-      Date: user.createdAt,
+      "Status": user.state,
+      "Date": user.createdAt,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);

@@ -1,7 +1,7 @@
 "use client";
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { format } from "date-fns";
+import { add, format } from "date-fns";
 import { AuthContext } from "@/context/AuthContext";
 import Loader from "../ui/loader";
 import { UsersClient } from "./user/client";
@@ -46,6 +46,8 @@ const Users = () => {
     id: user._id,
     fullName: user.fullName || "N/A",
     shopName: user.addresses && user.addresses.length > 0 ? user.addresses[0].shopName : "N/A",
+    address: user.addresses && user.addresses.length > 0 ? user.addresses[0] : "N/A",
+    email: user.email || "N/A",
     phoneNumber: user.phoneNumber || "N/A",
     role: user.role || "N/A",
     fcmToken: user.fcmToken || "N/A",
