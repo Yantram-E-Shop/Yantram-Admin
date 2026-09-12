@@ -27,7 +27,7 @@ const Orders = () => {
     const fecthOrders = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`/api/v1/orders/admin/all?page=${page}&limit=10000&searchQuery=${searchQuery}`, {
+        const response = await axios.get(`/api/v1/orders/admin/all?page=${page}&limit=100&searchQuery=${searchQuery}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },

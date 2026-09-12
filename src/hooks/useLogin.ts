@@ -12,43 +12,103 @@ export const useLogin = () => {
     const { dispatch } = useAuthContext();
     const router = useRouter();
 
+    // Step 1: Request OTP for 2FA login (this replaces the old direct-login flow)
     const login = async (email: string, password: string) => {
         setIsLoading(true);
         setError(null);
-        toast.loading("Logging in...");
+        toast.loading("Requesting OTP...");
 
         try {
-            const response = await axios.post("/user/login/admin", {
+            const response = await axios.post("/user/login2FA/admin", {
                 email,
                 password,
             });
 
-            console.log(response);
-            const responseObj = await response.data.data;
-
             if (!response.data?.success) {
                 setIsLoading(false);
-                setError(response.data?.message);
+                toast.dismiss();
+                const msg = response.data?.message || "Failed to request OTP";
+                setError(msg);
+                toast.error(msg);
+                return { success: false, message: msg };
             }
-            if (response.data.success) {
-                localStorage.setItem("user", responseObj.user);
-                localStorage.setItem("accessToken", responseObj.accessToken);
-                localStorage.setItem("refreshToken", responseObj.refreshToken);
-                dispatch({ type: "LOGIN", payload: responseObj });
+
+            setIsLoading(false);
+            toast.dismiss();
+            toast.success(response.data?.message || "OTP sent to admin email");
+            return { success: true };
+        } catch (err) {
+            if (err instanceof AxiosError) {
                 setIsLoading(false);
                 toast.dismiss();
-                toast.success(response.data?.message);
-                router.push("/");
+                const msg = err.response?.data?.message || "Request failed";
+                toast.error(msg);
+                setError(msg);
+                return { success: false, message: msg };
             }
-        } catch (error) {
-            if (error instanceof AxiosError) {
-                setIsLoading(false);
-                toast.dismiss();
-                toast.error(error.response?.data?.message)
-                setError(error.response?.data?.message);
-            }
+
+            setIsLoading(false);
+            toast.dismiss();
+            const msg = "Request failed";
+            toast.error(msg);
+            setError(msg);
+            return { success: false, message: msg };
         }
     };
 
-    return { login, isLoading, error };
+    // Step 2: Verify OTP and finish login (generate tokens, set storage, dispatch)
+    const verifyOtp = async (email: string, otp: string) => {
+        setIsLoading(true);
+        setError(null);
+        toast.loading("Verifying OTP...");
+
+        try {
+            const response = await axios.post("/user/verify-admin-login-otp", {
+                email,
+                otp,
+            });
+
+            if (!response.data?.success) {
+                setIsLoading(false);
+                toast.dismiss();
+                const msg = response.data?.message || "OTP verification failed";
+                setError(msg);
+                toast.error(msg);
+                return { success: false, message: msg };
+            }
+
+            const responseObj = response.data.data;
+
+            // store values and update context
+            localStorage.setItem("user", JSON.stringify(responseObj.user));
+            localStorage.setItem("accessToken", responseObj.accessToken);
+            localStorage.setItem("refreshToken", responseObj.refreshToken);
+            dispatch({ type: "LOGIN", payload: responseObj });
+
+            setIsLoading(false);
+            toast.dismiss();
+            toast.success(response.data?.message || "Admin logged in");
+            router.push("/");
+
+            return { success: true, data: responseObj };
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                setIsLoading(false);
+                toast.dismiss();
+                const msg = err.response?.data?.message || "Verification failed";
+                toast.error(msg);
+                setError(msg);
+                return { success: false, message: msg };
+            }
+
+            setIsLoading(false);
+            toast.dismiss();
+            const msg = "Verification failed";
+            setError(msg);
+            toast.error(msg);
+            return { success: false, message: msg };
+        }
+    };
+
+    return { login, verifyOtp, isLoading, error };
 };
