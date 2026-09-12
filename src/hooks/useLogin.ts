@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 
 export const useLogin = () => {
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { dispatch } = useAuthContext();
     const router = useRouter();
