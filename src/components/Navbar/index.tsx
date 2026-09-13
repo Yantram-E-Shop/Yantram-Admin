@@ -26,9 +26,26 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { useAuthContext } from "@/hooks/useAuthContext";
+import axios from "axios";
 
 export function Navbar() {
     const { accessToken } = useAuthContext();
+    const [isAdmin, setIsAdmin] = React.useState(false);
+
+    React.useEffect(() => {
+        if (!accessToken) {
+            setIsAdmin(false);
+            return;
+        }
+
+        axios.get("/api/v1/user/me", {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        }).then((response) => {
+            setIsAdmin(response.data?.data?.role?.toLowerCase() === "admin");
+        }).catch(() => {
+            setIsAdmin(false);
+        });
+    }, [accessToken]);
 
     if (!accessToken) {
         return <></>;
@@ -144,6 +161,17 @@ export function Navbar() {
                             </NavigationMenuLink>
                         </Link>
                     </NavigationMenuItem>
+                    {isAdmin && (
+                        <NavigationMenuItem>
+                            <Link href="/staff" legacyBehavior passHref>
+                                <NavigationMenuLink
+                                    className={navigationMenuTriggerStyle()}
+                                >
+                                    Staff
+                                </NavigationMenuLink>
+                            </Link>
+                        </NavigationMenuItem>
+                    )}
                 </div>
             </NavigationMenuList>
             <NavigationMenuList>

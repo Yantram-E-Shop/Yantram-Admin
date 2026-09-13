@@ -1,5 +1,4 @@
 import axios from "axios";
-import { useRouter } from "next/router";
 
 export const BASE_URL = "/api/v1";
 
@@ -9,7 +8,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem("accessToken");
+        const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -24,9 +23,10 @@ api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
-        const refreshToken = localStorage.getItem("refreshToken");
+        const refreshToken = typeof window !== "undefined" ? localStorage.getItem("refreshToken") : null;
 
-        if (error.response.status === 401 && refreshToken) {
+        if (error.response?.status === 401 && refreshToken && !originalRequest?._retry) {
+            originalRequest._retry = true;
             try {
                 const response = await axios.post(
                     `${BASE_URL}/user/refresh-token`,
@@ -37,14 +37,13 @@ api.interceptors.response.use(
 
                 localStorage.setItem("accessToken", response.data.accessToken);
                 localStorage.setItem("refreshToken", response.data.refreshToken);
-                originalRequest.headers.Authorization = `Bearer ${response.data.access}`;
+                originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
 
                 return api(originalRequest);
             } catch (refreshError) {
                 localStorage.removeItem("accessToken");
                 localStorage.removeItem("refreshToken");
-                const router = useRouter();
-                router.push("/login");
+                window.location.assign("/login");
                 return Promise.reject(refreshError);
             }
         }
