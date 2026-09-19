@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { ApiList } from "@/components/ui/api-list";
 import { columns, UserColumn } from "./columns";
 import React from "react";
+import { useAuthContext } from "@/hooks/useAuthContext";
 
 interface UsersClientProps {
   data: any[];
@@ -35,6 +36,8 @@ export const UsersClient: React.FC<UsersClientProps> = ({
   const params = useParams();
   const router = useRouter();
   const [localSearch, setLocalSearch] = useState(searchQuery);
+  const { role } = useAuthContext();
+  const isAdmin = role?.toLowerCase() === "admin";
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalSearch(e.target.value);
@@ -54,6 +57,8 @@ export const UsersClient: React.FC<UsersClientProps> = ({
   };
 
   const handleExportToExcel = () => {
+    if (!isAdmin) return;
+
     if (!data || data.length === 0) {
       alert("No users to export.");
       return;
@@ -88,12 +93,11 @@ export const UsersClient: React.FC<UsersClientProps> = ({
       <div className="flex items-center justify-between">
         <Heading title={`Users (${totalUsers})`} description="Manage users of your platform" />
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleExportToExcel}>
-            Export to Excel
-          </Button>
-          <Button onClick={() => router.push(`/users/new`)}>
-            <Plus className="w-4 h-4 mr-2" /> Add New
-          </Button>
+          {isAdmin && (
+            <Button variant="outline" onClick={handleExportToExcel}>
+              Export to Excel
+            </Button>
+          )}
         </div>
       </div>
       <Separator />

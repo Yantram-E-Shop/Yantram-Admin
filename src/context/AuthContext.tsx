@@ -12,6 +12,7 @@ import { jwtDecode } from "jwt-decode";
 interface AuthState {
     accessToken: string | null;
     refreshToken: string | null;
+    role: string | null;
 }
 
 interface AuthProviderProps {
@@ -38,9 +39,10 @@ export const authReducer = (
             return {
                 accessToken: action.payload.accessToken,
                 refreshToken: action.payload.refreshToken,
+                role: action.payload.user?.role ?? null,
             };
         case "LOGOUT":
-            return { accessToken: null, refreshToken: null, user: null };
+            return { accessToken: null, refreshToken: null, role: null };
         default:
             return state;
     }
@@ -64,14 +66,23 @@ export const AuthContextProvider: FC<AuthProviderProps> = ({ children }) => {
     const [state, dispatch] = useReducer(authReducer, {
         accessToken: null, // Initially set to null
         refreshToken: null,
+        role: null,
     });
 
     useEffect(() => {
         // Only access localStorage after component mounts (client-side)
         if (typeof window !== "undefined") {
+            let storedUser: { role?: string } | null = null;
+            try {
+                storedUser = JSON.parse(localStorage.getItem("user") || "null");
+            } catch {
+                storedUser = null;
+            }
+
             const storedAuth: AuthState = {
                 accessToken: localStorage.getItem("accessToken") ?? null,
                 refreshToken: localStorage.getItem("refreshToken") ?? null,
+                role: storedUser?.role ?? null,
             };
 
             if (storedAuth && isTokenValid(storedAuth.accessToken)) {

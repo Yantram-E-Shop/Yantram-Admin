@@ -21,9 +21,11 @@ const SubcategoryAction: React.FC<SubcategoryActionProps> = ({
 }) => {
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
+  const isAdmin = authContext?.role?.toLowerCase() === "admin";
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   const handleDelete = async () => {
+    if (!isAdmin || !window.confirm("This subcategory will be permanently deleted and cannot be recovered. Continue?")) return;
     try {
       await axios.delete(`${BASE_URL}/sub-category/${subcategoryId}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -37,9 +39,9 @@ const SubcategoryAction: React.FC<SubcategoryActionProps> = ({
 
   return (
     <div className="flex space-x-2">
-      <Button variant="outline" onClick={handleDelete}>
+      {isAdmin && <Button variant="outline" onClick={handleDelete}>
         Delete
-      </Button>
+      </Button>}
       <Button variant="outline" onClick={() => setIsEditOpen(true)}>
         Edit
       </Button>

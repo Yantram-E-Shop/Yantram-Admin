@@ -33,6 +33,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data, existingZones, onZ
   const router = useRouter();
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
+  const isAdmin = authContext?.role?.toLowerCase() === "admin";
 
   const onConfirmDelete = async () => {
     try {
@@ -95,9 +96,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data, existingZones, onZ
           <DropdownMenuItem onClick={() => setEditModalOpen(true)}>
             <Edit className="w-4 h-4 mr-2" /> Update
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setDeleteModalOpen(true)}>
+          {isAdmin && <DropdownMenuItem onClick={() => setDeleteModalOpen(true)}>
             <Trash className="w-4 h-4 mr-2" /> Delete
-          </DropdownMenuItem>
+          </DropdownMenuItem>}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

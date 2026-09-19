@@ -32,6 +32,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data, onOpenModal }) => 
   const params = useParams();
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
+  const isAdmin = authContext?.role?.toLowerCase() === "admin";
 
   const onConfirm = async () => {
     try {
@@ -79,9 +80,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data, onOpenModal }) => 
           <DropdownMenuItem onClick={() => onCopy(data._id)}>
             <Copy className="w-4 h-4 mr-2" /> Copy Id
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpen(true)}>
+          {isAdmin && <DropdownMenuItem onClick={() => setOpen(true)}>
             <Trash className="w-4 h-4 mr-2" /> Delete
-          </DropdownMenuItem>
+          </DropdownMenuItem>}
           <DropdownMenuItem onClick={() => onOpenModal(data)}>
             <Edit className="w-4 h-4 mr-2" /> Edit
           </DropdownMenuItem>

@@ -22,6 +22,7 @@ const AttachInvoiceModal = ({
 
     const authContext = useContext(AuthContext);
     const accessToken1 = authContext?.accessToken;
+    const isAdmin = authContext?.role?.toLowerCase() === "admin";
 
     const handleFileChange = (e) => {
         if (e.target.files?.[0]) {
@@ -102,7 +103,7 @@ const AttachInvoiceModal = ({
             return;
         }
 
-        if (!confirm("Delete attached invoice? This cannot be undone.")) return;
+        if (!isAdmin || !confirm("This attached invoice will be permanently deleted and cannot be recovered. Continue?")) return;
 
         try {
             setLoading(true);
@@ -166,9 +167,9 @@ const AttachInvoiceModal = ({
                     </Button>
                     {invoiceUrl && (
                         <>
-                            <Button variant="destructive" onClick={handleDelete} disabled={loading}>
+                            {isAdmin && <Button variant="destructive" onClick={handleDelete} disabled={loading}>
                                 Delete
-                            </Button>
+                            </Button>}
                             <Button onClick={handleDownload} disabled={loading || !invoiceUrl}>
                                 {loading ? "Processing..." : "Download"}
                             </Button>

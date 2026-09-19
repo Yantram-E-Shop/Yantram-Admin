@@ -36,6 +36,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }:{data:any}) => {
   const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
+  const isAdmin = authContext?.role?.toLowerCase() === "admin";
   const [attachInvoiceOpen, setAttachInvoiceOpen] = useState(false);
 
 const onDelete = (id: string) => {
@@ -154,9 +155,9 @@ const confirmDelete = async () => {
           <DropdownMenuItem onClick={() => setAttachInvoiceOpen(true)}>
           <Edit className="w-4 h-4 mr-2" /> Manage Tax Invoice
          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onDelete(data.id)}>
-          <Trash className="w-4 h-4 mr-2 text-red-500" /> Delete Order
-          </DropdownMenuItem>
+          {isAdmin && <DropdownMenuItem onClick={() => onDelete(data.id)}>
+            <Trash className="w-4 h-4 mr-2 text-red-500" /> Delete Order
+          </DropdownMenuItem>}
 
         </DropdownMenuContent>
       </DropdownMenu>

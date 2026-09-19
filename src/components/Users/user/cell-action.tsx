@@ -32,6 +32,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }: { data: any }) =
 
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
+  const isAdmin = authContext?.role?.toLowerCase() === "admin";
 
   const onConfirm = async () => {
     try {
@@ -107,12 +108,12 @@ export const CellAction: React.FC<CellActionProps> = ({ data }: { data: any }) =
           <DropdownMenuItem onClick={() => onCopy(data.id)}>
             <Copy className="w-4 h-4 mr-2" /> Copy ID
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => BlockUser(data.id)}>
+          {isAdmin && <DropdownMenuItem onClick={() => BlockUser(data.id)}>
             <Copy className="w-4 h-4 mr-2" /> Block User
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => ActivateUser(data.id)}>
+          </DropdownMenuItem>}
+          {isAdmin && <DropdownMenuItem onClick={() => ActivateUser(data.id)}>
             <Copy className="w-4 h-4 mr-2" /> Activate User
-          </DropdownMenuItem>
+          </DropdownMenuItem>}
           {/* <DropdownMenuItem onClick={() => router.push(`/users/${data.id}`)}>
             <Edit className="w-4 h-4 mr-2" /> Update
           </DropdownMenuItem>
@@ -120,8 +121,13 @@ export const CellAction: React.FC<CellActionProps> = ({ data }: { data: any }) =
             <Trash className="w-4 h-4 mr-2" /> Delete
           </DropdownMenuItem> */}
           <DropdownMenuItem onClick={() => router.push(`/users/${data.id}`)}>
-  <Edit className="w-4 h-4 mr-2" /> View Details
-</DropdownMenuItem>
+            <Edit className="w-4 h-4 mr-2" /> View Details
+          </DropdownMenuItem>
+          {isAdmin && (
+            <DropdownMenuItem onClick={() => setOpen(true)}>
+              <Trash className="w-4 h-4 mr-2" /> Delete
+            </DropdownMenuItem>
+          )}
 
         </DropdownMenuContent>
         

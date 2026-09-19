@@ -7,8 +7,10 @@ import { AuthContext } from "@/context/AuthContext";
 const ValueAction = ({ attributeId, valuesToDelete, onValueDeleted }) => {
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
+  const isAdmin = authContext?.role?.toLowerCase() === "admin";
 
   const handleDelete = async () => {
+    if (!isAdmin || valuesToDelete.length === 0 || !window.confirm("The selected values will be permanently deleted and cannot be recovered. Continue?")) return;
     try {
       await axios.put(
         `/api/v1/attributes/${attributeId}/remove`,
@@ -28,9 +30,9 @@ const ValueAction = ({ attributeId, valuesToDelete, onValueDeleted }) => {
 
   return (
     <div className="flex space-x-2">
-      <Button variant="outline" onClick={handleDelete}>
+      {isAdmin && <Button variant="outline" onClick={handleDelete}>
         Delete Selected Values
-      </Button>
+      </Button>}
       {/* Optionally, you can add an Edit button here */}
     </div>
   );
