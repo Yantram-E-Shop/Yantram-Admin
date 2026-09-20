@@ -9,6 +9,7 @@ import React, {
 } from "react";
 
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 interface AuthState {
     accessToken: string | null;
     refreshToken: string | null;
@@ -72,29 +73,35 @@ export const AuthContextProvider: FC<AuthProviderProps> = ({ children }) => {
     useEffect(() => {
         // Only access localStorage after component mounts (client-side)
         if (typeof window !== "undefined") {
-            let storedUser: { role?: string } | null = null;
-            try {
-                storedUser = JSON.parse(localStorage.getItem("user") || "null");
-            } catch {
-                storedUser = null;
-            }
-
             const storedAuth: AuthState = {
                 accessToken: localStorage.getItem("accessToken") ?? null,
                 refreshToken: localStorage.getItem("refreshToken") ?? null,
-                role: storedUser?.role ?? null,
+                role: null,
             };
 
             if (storedAuth && isTokenValid(storedAuth.accessToken)) {
-                dispatch({
-                    type: "LOGIN",
-                    payload: storedAuth,
+                axios.get("/api/v1/user/me", {
+                    headers: { Authorization: `Bearer ${storedAuth.accessToken}` },
+                }).then((response) => {
+                    dispatch({
+                        type: "LOGIN",
+                        payload: {
+                            ...storedAuth,
+                            user: response.data?.data,
+                        },
+                    });
+                }).catch(() => {
+                    localStorage.removeItem("accessToken");
+                    localStorage.removeItem("refreshToken");
+                    localStorage.removeItem("user");
+                    dispatch({ type: "LOGOUT" });
+                }).finally(() => {
+                    setLoading(false);
                 });
             } else {
                 dispatch({ type: "LOGOUT" });
+                setLoading(false);
             }
-
-            setLoading(false);
         }
     }, []);
 

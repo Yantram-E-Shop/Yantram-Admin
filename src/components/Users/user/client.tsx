@@ -74,12 +74,19 @@ export const UsersClient: React.FC<UsersClientProps> = ({
       "Landmark": user.address?.landmark,
       "Pincode": user.address?.pincode,
       "District": user.address?.district,
-      "State": user.address?.state,
+      "State": user.address?.state,      
       "Fcm Token": user.fcmToken,
       "Role": user.role,
       "Number Verified": user.numberVerified,
       "Status": user.state,
       "Date": user.createdAt,
+      "Cart Items": (user.cart || [])
+        .flatMap((cart: any) => cart.items || [])
+        .map(
+          (item: any) =>
+            `${item.product || "N/A"} - Qty: ${item.quantity || 0} - Price: ${item.totalPrice || 0}`
+        )
+        .join("\n"),
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);

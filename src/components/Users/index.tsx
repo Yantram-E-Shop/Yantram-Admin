@@ -21,7 +21,7 @@ const Users = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`/api/v1/user?page=${page}&limit=10000&searchQuery=${searchQuery}`, {
+        const response = await axios.get(`/api/v1/user?page=${page}&limit=100&searchQuery=${searchQuery}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -47,6 +47,7 @@ const Users = () => {
     fullName: user.fullName || "N/A",
     shopName: user.addresses && user.addresses.length > 0 ? user.addresses[0].shopName : "N/A",
     address: user.addresses && user.addresses.length > 0 ? user.addresses[0] : "N/A",
+    cart : user.cart || "N/A",
     email: user.email || "N/A",
     phoneNumber: user.phoneNumber || "N/A",
     role: user.role || "N/A",
