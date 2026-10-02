@@ -12,6 +12,7 @@ import React, { useState,useContext,useRef  } from "react";
 import * as XLSX from "xlsx";
 import { AuthContext } from "@/context/AuthContext";
 import axios from "axios";
+import { createExportCacheKey, fetchAllCachedPages, getCachedExportValue, invalidateProductExportCache } from "@/lib/export-cache";
 
 interface ProductsClientProps {
   isModalOpen: boolean;
@@ -86,7 +87,8 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
   const params = useParams();
   const router = useRouter();
 
-  const [localSearch, setLocalSearch] = useState(searchQuery);
+  const [localSearch, setLocalSearch] = useState(searchQuery);
+  const [isExporting, setIsExporting] = useState(false);
   const authContext = useContext(AuthContext);
   const accessToken = authContext?.accessToken;
   // Inside the component
@@ -132,39 +134,50 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
       .join(";");
   };
 
-  const handleExportToExcel = async () => {
+  const handleExportToExcel = async () => {
+    setIsExporting(true);
     try {
-            const res = await axios.get(`api/v1/products?limit=100000&searchQuery=${searchQuery}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      console.log(res.data?.data);
-
-      const allProducts = res.data?.data?.data || [];
+    const cacheKey = createExportCacheKey(accessToken, "products", searchQuery);
+    const allProducts = await fetchAllCachedPages<any>(cacheKey, async (requestedPage) => {
+      const params = new URLSearchParams({
+        page: String(requestedPage),
+        limit: "100",
+        searchQuery,
+      });
+      const response = await axios.get(`/api/v1/products?${params}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      return response.data;
+    });
       if (allProducts.length === 0) {
         alert("No products found.");
         return;
       }
 
-      const [resCat, resSubCat, resAttr] = await Promise.all([
-        axios.get(`/api/v1/category`, { headers: { Authorization: `Bearer ${accessToken}` } }),
-        axios.get(`/api/v1/sub-category`, { headers: { Authorization: `Bearer ${accessToken}` } }),
-        axios.get(`/api/v1/attributes`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+    const [categories, subcategories, attributes] = await Promise.all([
+      getCachedExportValue(createExportCacheKey(accessToken, "categories"), async () =>
+        (await axios.get(`/api/v1/category`, { headers: { Authorization: `Bearer ${accessToken}` } })).data.data
+      ),
+      getCachedExportValue(createExportCacheKey(accessToken, "subcategories"), async () =>
+        (await axios.get(`/api/v1/sub-category`, { headers: { Authorization: `Bearer ${accessToken}` } })).data.data
+      ),
+      getCachedExportValue(createExportCacheKey(accessToken, "attributes"), async () =>
+        (await axios.get(`/api/v1/attributes`, { headers: { Authorization: `Bearer ${accessToken}` } })).data.data
+      ),
       ]);
 
       const categoryMap: Record<string, string> = {};
-      resCat.data.data.forEach((cat: any) => {
+    categories.forEach((cat: any) => {
         categoryMap[cat._id] = cat.name.trim();
       });
 
       const subCategoryMap: Record<string, string> = {};
-      resSubCat.data.data.forEach((sub: any) => {
+    subcategories.forEach((sub: any) => {
         subCategoryMap[sub._id] = sub.name.trim();
       });
 
       const attributeMap: Record<string, string> = {};
-      resAttr.data.data.forEach((attr: any) => {
+    attributes.forEach((attr: any) => {
         attributeMap[attr._id] =attr.name.trim();
       });
 
@@ -205,6 +218,8 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
     } catch (err) {
       console.error("Export failed", err);
       alert("Failed to export all products.");
+  } finally {
+    setIsExporting(false);
     }
   };
 
@@ -312,6 +327,7 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
           console.error("Error creating product:", err);
         }
       }
+        invalidateProductExportCache(accessToken);
       alert("Bulk product creation completed!");
     } catch (error) {
       console.error("Error processing Excel:", error);
@@ -417,6 +433,7 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
           console.error(`Error updating product ${row.ID}:`, err);
         }
       }
+        invalidateProductExportCache(accessToken);
       alert("All products updated successfully.");
     } catch (error) {
       console.error("Failed to process Excel file", error);
@@ -432,8 +449,8 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
           description="Manage products for your store"
         />
         <div className="flex items-center gap-2">
-  <Button onClick={handleExportToExcel}>
-    Export to Excel
+   <Button onClick={handleExportToExcel} disabled={isExporting}>
+     {isExporting ? "Exporting..." : "Export to Excel"}
   </Button>
 
   <Button variant="outline" onClick={triggerFileSelect}>

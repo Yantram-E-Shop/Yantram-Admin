@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { useContext, useState } from "react";
 import { toast } from "react-hot-toast";
+import { invalidateProductExportCache } from "@/lib/export-cache";
 
 import { AlertModal } from "@/components/modals/alert-modal";
 import  EditProductModal  from "../../ui/EditProductModal.jsx"
@@ -44,6 +45,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
+      invalidateProductExportCache(accessToken);
       toast.success("Product deleted.");
       router.refresh();
     } catch (error) {
@@ -65,6 +67,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   };
 
   const handleProductUpdated = () => {
+    invalidateProductExportCache(accessToken);
     setEditModalOpen(false); // Close modal after update
     router.refresh(); // Refresh product list
   };

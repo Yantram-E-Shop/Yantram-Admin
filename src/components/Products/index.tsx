@@ -8,6 +8,7 @@ import { AuthContext } from "@/context/AuthContext";
 import AddProductModal from "../ui/AddProductModal";
 import Loader from "../ui/loader";
 import { BASE_URL } from "@/api/axios";
+import { invalidateProductExportCache } from "@/lib/export-cache";
 
 type Category = { _id: string; name: string };
 
@@ -28,6 +29,7 @@ const Products = () => {
   const closeModal = () => setIsModalOpen(false);
 
   const  onProductAdded = () => {
+    invalidateProductExportCache(accessToken);
     closeModal();
     setPage(1);
   }
