@@ -172,6 +172,17 @@ export function Navbar() {
                             </Link>
                         </NavigationMenuItem>
                     )}
+                    {isAdmin && (
+                        <NavigationMenuItem>
+                            <Link href="/logs" legacyBehavior passHref>
+                                <NavigationMenuLink
+                                    className={navigationMenuTriggerStyle()}
+                                >
+                                    Logs
+                                </NavigationMenuLink>
+                            </Link>
+                        </NavigationMenuItem>
+                    )}
                 </div>
             </NavigationMenuList>
             <NavigationMenuList>
